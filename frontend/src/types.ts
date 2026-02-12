@@ -6,6 +6,7 @@ export interface Transaction {
   description: string;
   date: string;
   recurrence: Recurrence;
+  isAdjustment?: boolean;
   recurrenceInterval: number;
   recurrenceEndDate?: string | null;
   excludedDates?: string | null;

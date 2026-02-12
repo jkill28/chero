@@ -28,7 +28,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   language
 }) => {
   const [amount, setAmount] = useState('');
-  const [type, setType] = useState<'credit' | 'debit'>('credit');
+  const [type, setType] = useState<'credit' | 'debit' | 'adjustment'>('credit');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [recurrence, setRecurrence] = useState<Recurrence>('NONE');
@@ -39,7 +39,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   useEffect(() => {
     if (transaction) {
       setAmount(Math.abs(transaction.amount).toString());
-      setType(transaction.amount >= 0 ? 'credit' : 'debit');
+      setType(transaction.isAdjustment ? 'adjustment' : (transaction.amount >= 0 ? 'credit' : 'debit'));
       setDescription(transaction.description);
       setDate(format(selectedDate || new Date(transaction.date), 'yyyy-MM-dd'));
       setRecurrence(transaction.recurrence);
@@ -60,13 +60,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const finalAmount = type === 'credit' ? parseFloat(amount) : -parseFloat(amount);
+    const parsedAmount = parseFloat(amount);
+    const finalAmount = type === 'credit' ? parsedAmount : (type === 'adjustment' ? parsedAmount : -parsedAmount);
     const data: Partial<Transaction> = {
       id: transaction?.id,
       amount: finalAmount,
       description,
       date: new Date(date).toISOString(),
       recurrence,
+      isAdjustment: type === 'adjustment',
       recurrenceInterval,
       recurrenceEndDate: recurrenceEndDate ? new Date(recurrenceEndDate).toISOString() : null,
     };
@@ -112,6 +114,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               }`}
             >
               {t(language, 'debit')}
+            </button>
+            <button
+              type="button"
+              onClick={() => setType('adjustment')}
+              className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+                type === 'adjustment'
+                  ? 'bg-white dark:bg-gray-600 shadow text-amber-600 dark:text-amber-400'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t(language, 'adjustment')}
             </button>
           </div>
           <div>
