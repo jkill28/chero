@@ -106,8 +106,8 @@ export const Calendar: React.FC<CalendarProps> = ({
               )}
             >
               <div className={cn(
-                "flex flex-col mb-1 px-1 py-1 pointer-events-none border-b border-gray-100 dark:border-gray-700/50",
-                isToday ? "bg-indigo-50 dark:bg-indigo-900/20" : "bg-gray-50/80 dark:bg-gray-800/80"
+                "flex flex-col mb-1 px-1 py-1 pointer-events-none border-b border-gray-200 dark:border-gray-700",
+                isToday ? "bg-indigo-100/50 dark:bg-indigo-900/40" : "bg-gray-100 dark:bg-gray-700/50"
               )}>
                 <span className={cn(
                   "text-[10px] font-bold",

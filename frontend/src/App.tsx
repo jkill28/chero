@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
 import { Calendar } from './components/Calendar';
 import { TransactionModal } from './components/TransactionModal';
 import { SettingsModal } from './components/SettingsModal';
@@ -8,6 +9,7 @@ import type { Transaction, Settings } from './types';
 import { getDailyBalances } from './lib/balance';
 import { Settings as SettingsIcon, Plus } from 'lucide-react';
 import { t } from './lib/i18n';
+import { formatCurrency } from './lib/utils';
 
 const API_BASE = '/api';
 
@@ -20,28 +22,42 @@ function App() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
-  useEffect(() => {
-    fetchTransactions();
-    fetchSettings();
-  }, []);
+  const todayBalance = useMemo(() => {
+    const today = new Date();
+    const { balances: allBalances } = getDailyBalances(transactions, settings.initialBalance, today, today);
+    const dateKey = format(today, 'yyyy-MM-dd');
+    return allBalances[dateKey] ?? settings.initialBalance;
+  }, [transactions, settings.initialBalance]);
 
-  const fetchTransactions = async () => {
+  const formattedDate = useMemo(() => {
+    const today = new Date();
+    const locale = settings.language === 'en' ? enUS : fr;
+    const str = format(today, 'EEEE do MMM', { locale });
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }, [settings.language]);
+
+  async function fetchTransactions() {
     try {
       const res = await axios.get(`${API_BASE}/transactions`);
       setTransactions(res.data);
     } catch (error) {
       console.error('Failed to fetch transactions', error);
     }
-  };
+  }
 
-  const fetchSettings = async () => {
+  async function fetchSettings() {
     try {
       const res = await axios.get(`${API_BASE}/settings`);
       setSettings(res.data);
     } catch (error) {
       console.error('Failed to fetch settings', error);
     }
-  };
+  }
+
+  useEffect(() => {
+    fetchTransactions();
+    fetchSettings();
+  }, []);
 
   const { balances, dailyTransactions } = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
@@ -187,7 +203,9 @@ function App() {
         <header className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold">{t(settings.language, 'title')}</h1>
-            <p className="text-gray-600 dark:text-gray-400">{t(settings.language, 'subtitle')}</p>
+            <p className="text-gray-600 dark:text-gray-400">
+              {formattedDate} ({formatCurrency(todayBalance, settings.currency, settings.language)})
+            </p>
           </div>
           <div className="flex space-x-4">
             <button

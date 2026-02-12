@@ -1,7 +1,31 @@
 
-> backend@1.0.0 start
-> node dist/index.js
+> backend@1.0.0 dev
+> tsx watch src/index.ts
 
-[dotenv@17.2.4] injecting env (0) from .env -- tip: 🔑 add access controls to secrets: https://dotenvx.com/ops
+[dotenv@17.2.4] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
 Server running on port 3003
-Terminated
+PrismaClientInitializationError:
+Invalid `prisma.transaction.findMany()` invocation in
+/app/backend/src/index.ts:26:51
+
+  23 // Transactions
+  24 app.get('/api/transactions', async (req, res) => {
+  25   try {
+→ 26     const transactions = await prisma.transaction.findMany(
+error: Environment variable not found: DATABASE_URL.
+  -->  schema.prisma:10
+   |
+ 9 |   provider = "sqlite"
+10 |   url      = env("DATABASE_URL")
+   |
+
+Validation Error Count: 1
+    at ei.handleRequestError (/app/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:242:13)
+    at ei.handleAndLogRequestError (/app/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:174:12)
+    at ei.request (/app/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:143:12)
+    at async a (/app/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:833:24)
+    at async <anonymous> (/app/backend/src/index.ts:26:26) {
+  clientVersion: '6.19.2',
+  errorCode: undefined,
+  retryable: undefined
+}
