@@ -2,5 +2,5 @@
 > backend@1.0.0 dev
 > tsx watch src/index.ts
 
-[dotenv@17.2.4] injecting env (0) from .env -- tip: ⚙️  enable debug logging with { debug: true }
+[dotenv@17.2.4] injecting env (0) from .env -- tip: 📡 add observability to secrets: https://dotenvx.com/ops
 Server running on port 3003

@@ -61,9 +61,9 @@ export function getDailyBalances(
   const viewDailyTransactions: Record<string, TransactionOccurrence[]> = {};
 
   // To calculate balance from history, we need to start from the earliest transaction
-  const allTxDates = Object.keys(dayToAmount);
+  const allTxDates = [...Object.keys(dayToAmount), ...Object.keys(dayToAdjustment)];
   const minDate = allTxDates.length > 0
-    ? startOfDay(new Date(allTxDates.sort()[0]))
+    ? startOfDay(new Date([...allTxDates].sort()[0]))
     : startOfDay(viewStartDate);
 
   const startCalculationDate = isBefore(minDate, viewStartDate) ? minDate : startOfDay(viewStartDate);
