@@ -16,6 +16,7 @@ model Transaction {
   description        String
   date               DateTime
   recurrence         String    // NONE, WEEKLY, MONTHLY
+  isAdjustment       Boolean   @default(false)
   recurrenceInterval Int       @default(1)
   recurrenceEndDate  DateTime?
   excludedDates      String?   // Comma-separated ISO strings

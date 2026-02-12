@@ -134,9 +134,11 @@ export const Calendar: React.FC<CalendarProps> = ({
                     }}
                     className={cn(
                       "text-[9.5px] px-1.5 py-0.5 rounded-sm truncate transition-opacity hover:opacity-80 flex justify-between",
-                      occ.transaction.amount >= 0
-                        ? "bg-emerald-50 text-emerald-700 border-l-2 border-emerald-500 dark:bg-emerald-900/20 dark:text-emerald-300"
-                        : "bg-rose-50 text-rose-700 border-l-2 border-rose-500 dark:bg-rose-900/20 dark:text-rose-300"
+                      occ.transaction.isAdjustment
+                        ? "bg-amber-50 text-amber-700 border-l-2 border-amber-500 dark:bg-amber-900/20 dark:text-amber-300"
+                        : occ.transaction.amount >= 0
+                          ? "bg-emerald-50 text-emerald-700 border-l-2 border-emerald-500 dark:bg-emerald-900/20 dark:text-emerald-300"
+                          : "bg-rose-50 text-rose-700 border-l-2 border-rose-500 dark:bg-rose-900/20 dark:text-rose-300"
                     )}
                     title={`${occ.transaction.description}: ${occ.transaction.amount}`}
                   >

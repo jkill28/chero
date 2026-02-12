@@ -32,7 +32,7 @@ app.get('/api/transactions', async (req, res) => {
 });
 
 app.post('/api/transactions', async (req, res) => {
-  const { amount, description, date, recurrence, recurrenceInterval, recurrenceEndDate, excludedDates } = req.body;
+  const { amount, description, date, recurrence, recurrenceInterval, recurrenceEndDate, excludedDates, isAdjustment } = req.body;
   try {
     const transaction = await prisma.transaction.create({
       data: {
@@ -40,6 +40,7 @@ app.post('/api/transactions', async (req, res) => {
         description,
         date: new Date(date),
         recurrence,
+        isAdjustment: !!isAdjustment,
         recurrenceInterval: recurrenceInterval ? parseInt(recurrenceInterval) : 1,
         recurrenceEndDate: recurrenceEndDate ? new Date(recurrenceEndDate) : null,
         excludedDates,
@@ -54,7 +55,7 @@ app.post('/api/transactions', async (req, res) => {
 
 app.put('/api/transactions/:id', async (req, res) => {
   const { id } = req.params;
-  const { amount, description, date, recurrence, recurrenceInterval, recurrenceEndDate, excludedDates } = req.body;
+  const { amount, description, date, recurrence, recurrenceInterval, recurrenceEndDate, excludedDates, isAdjustment } = req.body;
   try {
     const transaction = await prisma.transaction.update({
       where: { id: parseInt(id) },
@@ -63,6 +64,7 @@ app.put('/api/transactions/:id', async (req, res) => {
         description,
         date: new Date(date),
         recurrence,
+        isAdjustment: !!isAdjustment,
         recurrenceInterval: recurrenceInterval ? parseInt(recurrenceInterval) : 1,
         recurrenceEndDate: recurrenceEndDate ? new Date(recurrenceEndDate) : null,
         excludedDates,

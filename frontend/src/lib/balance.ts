@@ -8,6 +8,7 @@ export function getDailyBalances(
   viewEndDate: Date
 ) {
   const dayToAmount: Record<string, number> = {};
+  const dayToAdjustment: Record<string, number> = {};
   const dailyTransactions: Record<string, TransactionOccurrence[]> = {};
 
   const toLocalDate = (iso: string) => {
@@ -23,7 +24,11 @@ export function getDailyBalances(
     if (tx.recurrence === 'NONE') {
       const dateKey = format(txDate, 'yyyy-MM-dd');
       if (!excluded.includes(dateKey)) {
-        dayToAmount[dateKey] = (dayToAmount[dateKey] || 0) + amount;
+        if (tx.isAdjustment) {
+          dayToAdjustment[dateKey] = amount;
+        } else {
+          dayToAmount[dateKey] = (dayToAmount[dateKey] || 0) + amount;
+        }
         if (!dailyTransactions[dateKey]) dailyTransactions[dateKey] = [];
         dailyTransactions[dateKey].push({ transaction: tx, date: tx.date });
       }
@@ -34,7 +39,11 @@ export function getDailyBalances(
       while (isBefore(occurrenceDate, recurrenceEnd) || isSameDay(occurrenceDate, recurrenceEnd)) {
         const dateKey = format(occurrenceDate, 'yyyy-MM-dd');
         if (!excluded.includes(dateKey)) {
-          dayToAmount[dateKey] = (dayToAmount[dateKey] || 0) + amount;
+          if (tx.isAdjustment) {
+            dayToAdjustment[dateKey] = amount;
+          } else {
+            dayToAmount[dateKey] = (dayToAmount[dateKey] || 0) + amount;
+          }
           if (!dailyTransactions[dateKey]) dailyTransactions[dateKey] = [];
           dailyTransactions[dateKey].push({ transaction: tx, date: occurrenceDate.toISOString() });
         }
@@ -65,7 +74,11 @@ export function getDailyBalances(
   let balance = initialBalance;
   while(isBefore(d, end) || isSameDay(d, end)) {
     const dateKey = format(d, 'yyyy-MM-dd');
-    balance += (dayToAmount[dateKey] || 0);
+    if (dayToAdjustment[dateKey] !== undefined) {
+      balance = dayToAdjustment[dateKey];
+    } else {
+      balance += (dayToAmount[dateKey] || 0);
+    }
 
     if (isSameDay(d, viewStartDate) || isBefore(viewStartDate, d)) {
       balances[dateKey] = balance;
