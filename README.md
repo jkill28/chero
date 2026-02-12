@@ -35,7 +35,7 @@ A web application for personal finance management with a calendar view.
 
 ```bash
 docker build -t chero .
-docker run -p 3003:3003 whatever
+docker run -p 3003:3003 chero
 ```
 
 The application will be available at `http://localhost:3003`.
