@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format } from 'date-fns';
+import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, startOfDay } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { Calendar } from './components/Calendar';
 import { TransactionModal } from './components/TransactionModal';
@@ -23,7 +23,7 @@ function App() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
   const todayBalance = useMemo(() => {
-    const today = new Date();
+    const today = startOfDay(new Date());
     const { balances: allBalances } = getDailyBalances(transactions, settings.initialBalance, today, today);
     const dateKey = format(today, 'yyyy-MM-dd');
     return allBalances[dateKey] ?? settings.initialBalance;
