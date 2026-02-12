@@ -43,11 +43,11 @@ The application will be available at `http://localhost:3003`.
 ## Database Backups
 1. Copy of the database:
   ``` 
-   docker cp any:/app/backend/prisma/dev.db /host/docker/data/any/appdata/dev.db
+   docker cp chero:/app/backend/prisma/dev.db /host/docker/data/any/appdata/dev.db
 ```
 3. Import the database into the container:
 ```
-   docker cp /host/docker/data/any/appdata/dev.db any:/app/backend/prisma/dev.db
+   docker cp /host/docker/data/any/appdata/dev.db chero:/app/backend/prisma/dev.db
 ```
 ### Local Development
 
