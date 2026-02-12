@@ -33,6 +33,13 @@ docker run -p 3003:3003 chero
 
 L'application sera disponible sur `http://localhost:3003`.
 
+## Sauvegardes de la base de données
+1. Copie de la base:
+   docker cp chero:/app/backend/prisma/dev.db /host/docker/data/chero/appdata/dev.db
+
+2. Importer la base dans le container:
+   docker cp /host/docker/data/chero/appdata/dev.db chero:/app/backend/prisma/dev.db
+
 ### Développement Local
 
 1. **Backend**:
