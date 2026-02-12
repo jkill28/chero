@@ -11,15 +11,19 @@ Une application web de gestion de finances personnelles avec vue calendrier.
 - **Dockerisé**: Déploiement facile avec Docker.
 
 ## Aperçu
+
 - **Vue calendrier**:
   <img width="1239" height="882" alt="image" src="https://github.com/user-attachments/assets/4c8adb3a-f480-4bf7-a5c5-dc3426fe93f2" />
   
+
 - **Vue transaction**:
   
   <img width="501" height="732" alt="image" src="https://github.com/user-attachments/assets/80850ba2-664d-4cb3-b45b-0f4317dced26" />
 
+
 - **Vue mobile, thème clair**:
-  <img width="1008" height="2017" alt="Screenshot_20260212-094414" src="https://github.com/user-attachments/assets/ff8bc116-da75-4eed-ab3e-9e100eeb0615" />
+  
+  <img width="512" height="1000" alt="Screenshot_20260212-094414" src="https://github.com/user-attachments/assets/ff8bc116-da75-4eed-ab3e-9e100eeb0615" />
 
 
 ## Comment lancer
@@ -35,11 +39,13 @@ L'application sera disponible sur `http://localhost:3003`.
 
 ## Sauvegardes de la base de données
 1. Copie de la base:
+  ``` 
    docker cp chero:/app/backend/prisma/dev.db /host/docker/data/chero/appdata/dev.db
-
-2. Importer la base dans le container:
+```
+3. Importer la base dans le container:
+```
    docker cp /host/docker/data/chero/appdata/dev.db chero:/app/backend/prisma/dev.db
-
+```
 ### Développement Local
 
 1. **Backend**:
