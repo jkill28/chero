@@ -10,6 +10,14 @@ Une application web de gestion de finances personnelles avec vue calendrier.
 - **Solde Quotidien**: Visualisez votre solde prévisionnel pour chaque jour du calendrier.
 - **Dockerisé**: Déploiement facile avec Docker.
 
+## Aperçu
+- **Vue calendrier**:
+  <img width="1239" height="882" alt="image" src="https://github.com/user-attachments/assets/4c8adb3a-f480-4bf7-a5c5-dc3426fe93f2" />
+- **Vue transaction**:
+  <img width="501" height="732" alt="image" src="https://github.com/user-attachments/assets/80850ba2-664d-4cb3-b45b-0f4317dced26" />
+
+
+
 ## Comment lancer
 
 ### Avec Docker
@@ -38,5 +46,5 @@ L'application sera disponible sur `http://localhost:3003`.
    npm run dev
    ```
 
-Le frontend sera sur `http://localhost:5173` et le backend sur `http://localhost:3003`.
+Le frontend sera sur `http://localhost:3003` et le backend sur `http://localhost:3003`.
 Le proxy Vite est configuré pour rediriger les appels `/api` vers le backend.
