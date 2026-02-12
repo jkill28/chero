@@ -1,52 +1,55 @@
-# Chéro - Calendrier Budgétaire
+# Chéro - Budget in a Calendar
 
-Une application web de gestion de finances personnelles avec vue calendrier.
 
-## Fonctionnalités
+A web application for personal finance management with a calendar view.
 
-- **Sélection de devise**: Choisissez votre devise préférée dans les paramètres.
-- **Vue Calendrier**: La semaine commence le lundi.
-- **Transactions**: Ajoutez des transactions ponctuelles ou récurrentes (hebdomadaires, mensuelles) avec intervalles personnalisés.
-- **Solde Quotidien**: Visualisez votre solde prévisionnel pour chaque jour du calendrier.
-- **Dockerisé**: Déploiement facile avec Docker.
+## Features
 
-## Aperçu
+- **Languages supported**: English or French
+- **Currency selection**: Choose your preferred currency in the settings.
+- **Calendar View**: The week starts on Monday.
+- **Transactions**: Add one-time or recurring transactions (weekly, monthly) with custom intervals.
+- **Daily Balance**: View your projected balance for each day of the calendar.
+- **Balance adjustement**: Adjust the daily balance manually.
+- **Dockerized**: Easy deployment with Docker.
 
-- **Vue calendrier**:
+## Preview
+
+- **Calendar view**:
   <img width="1239" height="882" alt="image" src="https://github.com/user-attachments/assets/4c8adb3a-f480-4bf7-a5c5-dc3426fe93f2" />
   
 
-- **Vue transaction**:
+- **Transaction view**:
   
   <img width="501" height="732" alt="image" src="https://github.com/user-attachments/assets/80850ba2-664d-4cb3-b45b-0f4317dced26" />
 
 
-- **Vue mobile, thème clair**:
+- **Mobile view, light theme**:
   
   <img width="512" height="1000" alt="Screenshot_20260212-094414" src="https://github.com/user-attachments/assets/ff8bc116-da75-4eed-ab3e-9e100eeb0615" />
 
 
-## Comment lancer
+## How to launch
 
-### Avec Docker
+### With Docker
 
 ```bash
 docker build -t chero .
-docker run -p 3003:3003 chero
+docker run -p 3003:3003 whatever
 ```
 
-L'application sera disponible sur `http://localhost:3003`.
+The application will be available at `http://localhost:3003`.
 
-## Sauvegardes de la base de données
-1. Copie de la base:
+## Database Backups
+1. Copy of the database:
   ``` 
-   docker cp chero:/app/backend/prisma/dev.db /host/docker/data/chero/appdata/dev.db
+   docker cp any:/app/backend/prisma/dev.db /host/docker/data/any/appdata/dev.db
 ```
-3. Importer la base dans le container:
+3. Import the database into the container:
 ```
-   docker cp /host/docker/data/chero/appdata/dev.db chero:/app/backend/prisma/dev.db
+   docker cp /host/docker/data/any/appdata/dev.db any:/app/backend/prisma/dev.db
 ```
-### Développement Local
+### Local Development
 
 1. **Backend**:
    ```bash
@@ -63,5 +66,5 @@ L'application sera disponible sur `http://localhost:3003`.
    npm run dev
    ```
 
-Le frontend sera sur `http://localhost:3003` et le backend sur `http://localhost:3003`.
-Le proxy Vite est configuré pour rediriger les appels `/api` vers le backend.
+The frontend will be on `http://localhost:3003` and the backend on `http://localhost:3003`.
+The Vite proxy is configured to redirect `/api` calls to the backend.
