@@ -8,6 +8,7 @@ A web application for personal finance management with a calendar view.
 - **Languages supported**: English or French
 - **Currency selection**: Choose your preferred currency in the settings.
 - **Calendar View**: The week starts on Monday.
+- **Swipe left/right**: modern calendar view navigation
 - **Transactions**: Add one-time or recurring transactions (weekly, monthly) with custom intervals.
 - **Daily Balance**: View your projected balance for each day of the calendar.
 - **Balance adjustement**: Adjust the daily balance manually.
