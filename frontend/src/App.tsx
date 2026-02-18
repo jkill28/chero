@@ -200,30 +200,30 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-8">
       <div className="max-w-6xl mx-auto">
-        <header className="flex justify-between items-center mb-8">
-          <div>
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+          <div className="w-full sm:w-auto">
             <h1 className="text-3xl font-bold">{t(settings.language, 'title')}</h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
               {formattedDate} ({formatCurrency(todayBalance, settings.currency, settings.language)})
             </p>
           </div>
-          <div className="flex space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end">
             <button
               onClick={() => {
                 setSelectedTransaction(null);
                 setSelectedDate(new Date());
                 setIsModalOpen(true);
               }}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 flex items-center text-sm sm:text-base"
+              className="bg-indigo-600 text-white px-3 py-2 rounded-md hover:bg-indigo-700 flex items-center text-xs sm:text-base whitespace-nowrap"
             >
-              <Plus size={20} className="mr-2" /> {t(settings.language, 'addTransaction')}
+              <Plus size={18} className="mr-1 sm:mr-2" /> {t(settings.language, 'addTransaction')}
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
               title="Paramètres"
-              className="p-2 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="p-2 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-              <SettingsIcon size={24} />
+              <SettingsIcon size={24} className="text-gray-600 dark:text-gray-300" />
             </button>
           </div>
         </header>

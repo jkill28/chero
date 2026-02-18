@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   format,
   startOfMonth,
@@ -38,6 +38,8 @@ export const Calendar: React.FC<CalendarProps> = ({
   currency,
   language,
 }) => {
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
   const startDate = startOfWeek(monthStart, { weekStartsOn: 1 });
@@ -51,11 +53,32 @@ export const Calendar: React.FC<CalendarProps> = ({
   const nextMonth = () => onDateChange(addMonths(currentDate, 1));
   const prevMonth = () => onDateChange(subMonths(currentDate, 1));
 
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStart) return;
+    const touchEnd = e.changedTouches[0].clientX;
+    const delta = touchStart - touchEnd;
+
+    if (delta > 50) {
+      nextMonth();
+    } else if (delta < -50) {
+      prevMonth();
+    }
+    setTouchStart(null);
+  };
+
   const locale = language === 'en' ? enUS : fr;
   const weekDays = t(language, 'weekDays') as string[];
 
   return (
-    <div className="w-full bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+    <div
+      className="w-full bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
         <h2 className="text-xl font-bold dark:text-white capitalize">
           {format(currentDate, 'MMMM yyyy', { locale })}
@@ -102,23 +125,25 @@ export const Calendar: React.FC<CalendarProps> = ({
               className={cn(
                 "min-h-[120px] flex flex-col border-r border-b border-gray-200 dark:border-gray-700 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50",
                 !isCurrentMonth && "bg-gray-50/50 dark:bg-gray-900/30 text-gray-400 dark:text-gray-600",
-                isToday && "bg-indigo-50/20 dark:bg-indigo-900/10"
+                isToday && "ring-2 ring-inset ring-indigo-600 dark:ring-indigo-500 bg-indigo-50/30 dark:bg-indigo-900/20"
               )}
             >
               <div className={cn(
                 "flex flex-col mb-1 px-1 py-1 pointer-events-none border-b border-gray-200 dark:border-gray-700",
-                isToday ? "bg-indigo-100/50 dark:bg-indigo-900/40" : "bg-gray-100 dark:bg-gray-700/50"
+                isToday ? "bg-indigo-600 dark:bg-indigo-500" : "bg-gray-100 dark:bg-gray-700/50"
               )}>
                 <span className={cn(
                   "text-[10px] font-bold",
-                  isToday ? "text-indigo-600 dark:text-indigo-400" : "text-gray-500 dark:text-gray-400"
+                  isToday ? "text-white" : "text-gray-500 dark:text-gray-400"
                 )}>
                   {format(day, 'd')}
                 </span>
                 {balance !== undefined && (
                   <div className={cn(
                     "text-[11px] font-black mt-0.5",
-                    balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                    isToday
+                      ? "text-white"
+                      : (balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")
                   )}>
                     {formatCurrency(balance, currency, language)}
                   </div>
