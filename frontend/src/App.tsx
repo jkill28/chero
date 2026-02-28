@@ -9,7 +9,7 @@ import type { Transaction, Settings } from './types';
 import { getDailyBalances } from './lib/balance';
 import { Settings as SettingsIcon, Plus } from 'lucide-react';
 import { t } from './lib/i18n';
-import { formatCurrency } from './lib/utils';
+import { cn, formatCurrency } from './lib/utils';
 
 const API_BASE = '/api';
 
@@ -71,7 +71,9 @@ function App() {
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
     setSelectedTransaction(null);
-    setIsModalOpen(true);
+    if (window.innerWidth >= 640) {
+      setIsModalOpen(true);
+    }
   };
 
   const handleTransactionClick = (tx: Transaction, occurrenceDate: string) => {
@@ -204,7 +206,10 @@ function App() {
           <div className="w-full sm:w-auto">
             <h1 className="text-3xl font-bold">{t(settings.language, 'title')}</h1>
             <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
-              {formattedDate} ({formatCurrency(todayBalance, settings.currency, settings.language)})
+              {formattedDate} (
+              <span className="sm:hidden">{formatCurrency(todayBalance, settings.currency, settings.language, true)}</span>
+              <span className="hidden sm:inline">{formatCurrency(todayBalance, settings.currency, settings.language)}</span>
+              )
             </p>
           </div>
           <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end">
@@ -231,6 +236,7 @@ function App() {
         <main>
           <Calendar
             currentDate={currentDate}
+            selectedDate={selectedDate}
             onDateChange={setCurrentDate}
             onDayClick={handleDayClick}
             onTransactionClick={handleTransactionClick}
@@ -239,6 +245,43 @@ function App() {
             currency={settings.currency}
             language={settings.language}
           />
+
+          {/* Mobile Operations List */}
+          <div className="mt-6 sm:hidden bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="font-bold dark:text-white capitalize">
+                {format(selectedDate, 'EEEE do MMMM', { locale: settings.language === 'en' ? enUS : fr })}
+              </h3>
+            </div>
+            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+              {dailyTransactions[format(selectedDate, 'yyyy-MM-dd')]?.length ? (
+                dailyTransactions[format(selectedDate, 'yyyy-MM-dd')].map((occ, idx) => (
+                  <div
+                    key={`${occ.transaction.id}-${idx}`}
+                    onClick={() => handleTransactionClick(occ.transaction, occ.date)}
+                    className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
+                  >
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium dark:text-gray-200">{occ.transaction.description}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                        {occ.transaction.amount >= 0 ? t(settings.language, 'income') : t(settings.language, 'expense')}
+                      </span>
+                    </div>
+                    <span className={cn(
+                      "text-sm font-bold",
+                      occ.transaction.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                    )}>
+                      {occ.transaction.amount > 0 ? '+' : ''}{formatCurrency(occ.transaction.amount, settings.currency, settings.language, true)}
+                    </span>
+                  </div>
+                ))
+              ) : (
+                <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+                  {t(settings.language, 'noTransactions')}
+                </div>
+              )}
+            </div>
+          </div>
         </main>
 
         <footer className="mt-8 text-center text-gray-500 text-sm">

@@ -19,6 +19,7 @@ import type { Transaction, TransactionOccurrence } from '../types';
 
 interface CalendarProps {
   currentDate: Date;
+  selectedDate: Date;
   onDateChange: (date: Date) => void;
   onDayClick: (date: Date) => void;
   onTransactionClick: (tx: Transaction, occurrenceDate: string) => void;
@@ -30,6 +31,7 @@ interface CalendarProps {
 
 export const Calendar: React.FC<CalendarProps> = ({
   currentDate,
+  selectedDate,
   onDateChange,
   onDayClick,
   onTransactionClick,
@@ -115,41 +117,63 @@ export const Calendar: React.FC<CalendarProps> = ({
           const transactions = dailyTransactions[dateKey] || [];
           const isCurrentMonth = isSameMonth(day, monthStart);
           const isToday = isSameDay(day, new Date());
+          const isSelected = isSameDay(day, selectedDate);
+
+          const dailyIncome = transactions
+            .filter(t => t.transaction.amount > 0 && !t.transaction.isAdjustment)
+            .reduce((sum, t) => sum + t.transaction.amount, 0);
+          const dailyExpenses = transactions
+            .filter(t => t.transaction.amount < 0 && !t.transaction.isAdjustment)
+            .reduce((sum, t) => sum + Math.abs(t.transaction.amount), 0);
 
           return (
             <div
               key={day.toString()}
-              onClick={(e) => {
-                if (e.target === e.currentTarget) onDayClick(day);
-              }}
+              onClick={() => onDayClick(day)}
               className={cn(
-                "min-h-[120px] flex flex-col border-r border-b border-gray-200 dark:border-gray-700 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50",
+                "min-h-[60px] sm:min-h-[120px] flex flex-col border-r border-b border-gray-200 dark:border-gray-700 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/50",
                 !isCurrentMonth && "bg-gray-50/50 dark:bg-gray-900/30 text-gray-400 dark:text-gray-600",
-                isToday && "ring-2 ring-inset ring-indigo-600 dark:ring-indigo-500 bg-indigo-50/30 dark:bg-indigo-900/20"
+                isToday && "ring-2 ring-inset ring-indigo-600 dark:ring-indigo-500 bg-indigo-50/30 dark:bg-indigo-900/20",
+                isSelected && !isToday && "bg-indigo-50 dark:bg-indigo-900/40"
               )}
             >
               <div className={cn(
                 "flex flex-col mb-1 px-1 py-1 pointer-events-none border-b border-gray-200 dark:border-gray-700",
                 isToday ? "bg-indigo-600 dark:bg-indigo-500" : "bg-gray-100 dark:bg-gray-700/50"
               )}>
-                <span className={cn(
-                  "text-[10px] font-bold",
-                  isToday ? "text-white" : "text-gray-500 dark:text-gray-400"
-                )}>
-                  {format(day, 'd')}
-                </span>
-                {balance !== undefined && (
-                  <div className={cn(
-                    "text-[11px] font-black mt-0.5",
-                    isToday
-                      ? "text-white"
-                      : (balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")
+                <div className="flex justify-between items-center">
+                  <span className={cn(
+                    "text-[10px] font-bold",
+                    isToday ? "text-white" : "text-gray-500 dark:text-gray-400"
                   )}>
-                    {formatCurrency(balance, currency, language)}
-                  </div>
-                )}
+                    {format(day, 'd')}
+                  </span>
+                  {balance !== undefined && (
+                    <div className={cn(
+                      "text-[10px] sm:text-[11px] font-black",
+                      isToday
+                        ? "text-white"
+                        : (balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400")
+                    )}>
+                      <span className="sm:hidden">{formatCurrency(balance, currency, language, true)}</span>
+                      <span className="hidden sm:inline">{formatCurrency(balance, currency, language)}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="flex flex-col gap-0.5 overflow-hidden p-1">
+
+              {/* Mobile view lines */}
+              <div className="flex sm:hidden flex-col gap-0 px-1 pb-1 overflow-hidden">
+                <div className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold truncate">
+                  {dailyIncome > 0 && `+${formatCurrency(dailyIncome, currency, language, true)}`}
+                </div>
+                <div className="text-[9px] text-rose-600 dark:text-rose-400 font-bold truncate">
+                  {dailyExpenses > 0 && `-${formatCurrency(dailyExpenses, currency, language, true)}`}
+                </div>
+              </div>
+
+              {/* Desktop view list */}
+              <div className="hidden sm:flex flex-col gap-0.5 overflow-hidden p-1">
                 {transactions.map((occ, idx) => (
                   <div
                     key={`${occ.transaction.id}-${idx}`}
