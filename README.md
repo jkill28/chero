@@ -17,8 +17,8 @@ A web application for personal finance management with a calendar view.
 ## Preview
 
 - **Calendar view**:
-  <img width="1239" height="882" alt="image" src="https://github.com/user-attachments/assets/4c8adb3a-f480-4bf7-a5c5-dc3426fe93f2" />
-  
+  <img width="1081" height="1196" alt="image" src="https://github.com/user-attachments/assets/ce182a58-2cd4-4c00-9a11-d0b3f3e1106b" />
+ 
 
 - **Transaction view**:
   
