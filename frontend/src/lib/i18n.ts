@@ -38,7 +38,10 @@ export const translations = {
     intervalLabel: {
       WEEKLY: 'semaines',
       MONTHLY: 'mois'
-    }
+    },
+    noTransactions: 'Aucune opération pour cette journée',
+    income: 'Revenu',
+    expense: 'Dépense'
   },
   en: {
     title: 'Chéro',
@@ -79,7 +82,10 @@ export const translations = {
     intervalLabel: {
       WEEKLY: 'weeks',
       MONTHLY: 'months'
-    }
+    },
+    noTransactions: 'No transactions for this day',
+    income: 'Income',
+    expense: 'Expense'
   }
 };
 
