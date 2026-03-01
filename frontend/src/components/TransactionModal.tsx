@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import type { Transaction, Recurrence } from '../types';
 import { X } from 'lucide-react';
 import { format } from 'date-fns';
 import { t } from '../lib/i18n';
+import { cn } from '../lib/utils';
 
 interface TransactionModalProps {
   isOpen: boolean;
@@ -36,25 +37,42 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   const [recurrenceEndDate, setRecurrenceEndDate] = useState('');
   const [editMode, setEditMode] = useState<'single' | 'future'>('future');
 
-  useEffect(() => {
+  const initialValues = useMemo(() => {
     if (transaction) {
-      setAmount(Math.abs(transaction.amount).toString());
-      setType(transaction.isAdjustment ? 'adjustment' : (transaction.amount >= 0 ? 'credit' : 'debit'));
-      setDescription(transaction.description);
-      setDate(format(selectedDate || new Date(transaction.date), 'yyyy-MM-dd'));
-      setRecurrence(transaction.recurrence);
-      setRecurrenceInterval(transaction.recurrenceInterval || 1);
-      setRecurrenceEndDate(transaction.recurrenceEndDate ? format(new Date(transaction.recurrenceEndDate), 'yyyy-MM-dd') : '');
+      return {
+        amount: Math.abs(transaction.amount).toString(),
+        type: (transaction.isAdjustment ? 'adjustment' : (transaction.amount >= 0 ? 'credit' : 'debit')) as 'credit' | 'debit' | 'adjustment',
+        description: transaction.description,
+        date: format(selectedDate || new Date(transaction.date), 'yyyy-MM-dd'),
+        recurrence: transaction.recurrence,
+        recurrenceInterval: transaction.recurrenceInterval || 1,
+        recurrenceEndDate: transaction.recurrenceEndDate ? format(new Date(transaction.recurrenceEndDate), 'yyyy-MM-dd') : '',
+      };
     } else if (selectedDate) {
-      setAmount('');
-      setType('credit');
-      setDescription('');
-      setDate(format(selectedDate, 'yyyy-MM-dd'));
-      setRecurrence('NONE');
-      setRecurrenceInterval(1);
-      setRecurrenceEndDate('');
+      return {
+        amount: '',
+        type: 'credit' as const,
+        description: '',
+        date: format(selectedDate, 'yyyy-MM-dd'),
+        recurrence: 'NONE' as const,
+        recurrenceInterval: 1,
+        recurrenceEndDate: '',
+      };
     }
-  }, [transaction, selectedDate, isOpen]);
+    return null;
+  }, [transaction, selectedDate]);
+
+  useEffect(() => {
+    if (isOpen && initialValues) {
+      setAmount(initialValues.amount);
+      setType(initialValues.type);
+      setDescription(initialValues.description);
+      setDate(initialValues.date);
+      setRecurrence(initialValues.recurrence);
+      setRecurrenceInterval(initialValues.recurrenceInterval);
+      setRecurrenceEndDate(initialValues.recurrenceEndDate);
+    }
+  }, [isOpen, initialValues]);
 
   if (!isOpen) return null;
 
@@ -81,55 +99,59 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg w-full max-w-md shadow-xl border border-gray-200 dark:border-gray-700">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold dark:text-white">
+    <div className="fixed inset-0 bg-m3-on-surface/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-m3-surface-container rounded-m3-xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="flex justify-between items-center px-6 py-6 border-b border-m3-outline/10">
+          <h2 className="text-2xl font-bold text-m3-on-surface">
             {transaction ? t(language, 'editTransaction') : t(language, 'newTransaction')}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+          <button onClick={onClose} className="p-2 text-m3-on-surface-variant hover:bg-m3-on-surface/10 rounded-full transition-colors">
             <X size={24} />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="flex p-1 bg-gray-100 dark:bg-gray-700 rounded-lg">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          <div className="flex p-1.5 bg-m3-surface-container-high rounded-m3-lg gap-1">
             <button
               type="button"
               onClick={() => setType('credit')}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+              className={cn(
+                "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
                 type === 'credit'
-                  ? 'bg-white dark:bg-gray-600 shadow text-indigo-600 dark:text-indigo-400'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                  : 'text-m3-on-surface-variant hover:text-m3-on-surface'
+              )}
             >
               {t(language, 'credit')}
             </button>
             <button
               type="button"
               onClick={() => setType('debit')}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+              className={cn(
+                "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
                 type === 'debit'
-                  ? 'bg-white dark:bg-gray-600 shadow text-red-600 dark:text-red-400'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                  : 'text-m3-on-surface-variant hover:text-m3-on-surface'
+              )}
             >
               {t(language, 'debit')}
             </button>
             <button
               type="button"
               onClick={() => setType('adjustment')}
-              className={`flex-1 py-2 text-sm font-medium rounded-md transition-all ${
+              className={cn(
+                "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
                 type === 'adjustment'
-                  ? 'bg-white dark:bg-gray-600 shadow text-amber-600 dark:text-amber-400'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                  : 'text-m3-on-surface-variant hover:text-m3-on-surface'
+              )}
             >
               {t(language, 'adjustment')}
             </button>
           </div>
-          <div>
-            <label htmlFor="tx-amount" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1">{t(language, 'amount')}</label>
-            <div className="relative">
+
+          <div className="space-y-4">
+            <div>
+              <label htmlFor="tx-amount" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'amount')}</label>
               <input
                 id="tx-amount"
                 type="number"
@@ -138,66 +160,68 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="block w-full rounded-md border-gray-300 dark:border-gray-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:text-white p-3 border text-lg"
+                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 text-xl font-semibold transition-all"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="tx-description" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'description')}</label>
+              <input
+                id="tx-description"
+                type="text"
+                name="description"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'date')}</label>
+              <input
+                type="date"
+                name="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
                 required
               />
             </div>
           </div>
-          <div>
-            <label htmlFor="tx-description" className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t(language, 'description')}</label>
-            <input
-              id="tx-description"
-              type="text"
-              name="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white p-2 border"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t(language, 'date')}</label>
-            <input
-              type="date"
-              name="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white p-2 border"
-              required
-            />
-          </div>
+
           {transaction && transaction.recurrence !== 'NONE' && (
-            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg space-y-2">
-              <label className="block text-sm font-semibold text-blue-800 dark:text-blue-300">{t(language, 'editMode')}</label>
-              <div className="space-y-1">
-                <label className="flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+            <div className="p-4 bg-m3-primary-container/30 rounded-m3-lg space-y-3">
+              <label className="block text-sm font-bold text-m3-on-primary-container uppercase tracking-wider">{t(language, 'editMode')}</label>
+              <div className="space-y-2">
+                <label className="flex items-center text-sm font-semibold text-m3-on-surface cursor-pointer">
                   <input
                     type="radio"
                     checked={editMode === 'single'}
                     onChange={() => setEditMode('single')}
-                    className="mr-2"
+                    className="mr-3 w-4 h-4 text-m3-primary border-m3-outline focus:ring-m3-primary"
                   />
                   {t(language, 'onlyThis')}
                 </label>
-                <label className="flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                <label className="flex items-center text-sm font-semibold text-m3-on-surface cursor-pointer">
                   <input
                     type="radio"
                     checked={editMode === 'future'}
                     onChange={() => setEditMode('future')}
-                    className="mr-2"
+                    className="mr-3 w-4 h-4 text-m3-primary border-m3-outline focus:ring-m3-primary"
                   />
                   {t(language, 'thisAndFollowing')}
                 </label>
               </div>
             </div>
           )}
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t(language, 'recurrence')}</label>
+              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'recurrence')}</label>
               <select
                 value={recurrence}
                 onChange={(e) => setRecurrence(e.target.value as Recurrence)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white p-2 border"
+                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
               >
                 <option value="NONE">{t(language, 'none')}</option>
                 <option value="WEEKLY">{t(language, 'weekly')}</option>
@@ -206,68 +230,88 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </div>
             {recurrence !== 'NONE' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">
                   {recurrence === 'WEEKLY' ? t(language, 'everyXWeeks').replace('{n}', '') : t(language, 'everyXMonths').replace('{n}', '')}
                 </label>
-                {recurrence === 'WEEKLY' ? (
-                  <select
-                    value={recurrenceInterval}
-                    onChange={(e) => setRecurrenceInterval(parseInt(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white p-2 border"
-                  >
-                    <option value={1}>1</option>
-                    <option value={2}>2</option>
-                    <option value={3}>3</option>
-                  </select>
-                ) : (
-                  <input
-                    type="number"
-                    min="1"
-                    value={recurrenceInterval}
-                    onChange={(e) => setRecurrenceInterval(parseInt(e.target.value))}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white p-2 border"
-                  />
-                )}
-                <span className="text-xs text-gray-500 ml-1">
-                  {t(language, 'intervalLabel')[recurrence as 'WEEKLY' | 'MONTHLY']}
-                </span>
+                <div className="flex items-center gap-2">
+                  {recurrence === 'WEEKLY' ? (
+                    <select
+                      value={recurrenceInterval}
+                      onChange={(e) => setRecurrenceInterval(parseInt(e.target.value))}
+                      className="flex-1 rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                    >
+                      <option value={1}>1</option>
+                      <option value={2}>2</option>
+                      <option value={3}>3</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="number"
+                      min="1"
+                      value={recurrenceInterval}
+                      onChange={(e) => setRecurrenceInterval(parseInt(e.target.value))}
+                      className="flex-1 rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                    />
+                  )}
+                  <span className="text-xs font-bold text-m3-on-surface-variant uppercase whitespace-nowrap">
+                    {t(language, 'intervalLabel')[recurrence as 'WEEKLY' | 'MONTHLY']}
+                  </span>
+                </div>
               </div>
             )}
           </div>
+
           {recurrence !== 'NONE' && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">{t(language, 'endDate')}</label>
+              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'endDate')}</label>
               <input
                 type="date"
                 value={recurrenceEndDate}
                 onChange={(e) => setRecurrenceEndDate(e.target.value)}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white p-2 border"
+                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
               />
             </div>
           )}
-          <div className="flex justify-between pt-4">
+
+          <div className="flex flex-col gap-4 pt-4">
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={onClose}
+                className="px-6 py-3.5 text-m3-primary font-bold hover:bg-m3-primary/5 rounded-full transition-colors"
+              >
+                {t(language, 'cancel')}
+              </button>
+              <button
+                type="submit"
+                className="bg-m3-primary text-m3-on-primary px-8 py-3.5 rounded-full font-bold shadow-md hover:shadow-lg transition-all"
+              >
+                {t(language, 'save')}
+              </button>
+            </div>
+
             {transaction && (
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 pt-4 border-t border-m3-outline/10">
                 {transaction.recurrence !== 'NONE' ? (
                   <>
                     <button
                       type="button"
                       onClick={() => onDeleteComplex?.(transaction.id, 'single')}
-                      className="text-red-600 hover:text-red-700 text-sm font-medium text-left"
+                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteThis')}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDeleteComplex?.(transaction.id, 'future')}
-                      className="text-red-600 hover:text-red-700 text-sm font-medium text-left"
+                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteFromHere')}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDelete?.(transaction.id)}
-                      className="text-red-600 hover:text-red-700 text-sm font-medium text-left"
+                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteAll')}
                     </button>
@@ -276,28 +320,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onDelete?.(transaction.id)}
-                    className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+                    className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-center rounded-lg transition-colors"
                   >
                     {t(language, 'delete')}
                   </button>
                 )}
               </div>
             )}
-            <div className="flex space-x-2 ml-auto">
-              <button
-                type="button"
-                onClick={onClose}
-                className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300"
-              >
-                {t(language, 'cancel')}
-              </button>
-              <button
-                type="submit"
-                className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
-              >
-                {t(language, 'save')}
-              </button>
-            </div>
           </div>
         </form>
       </div>

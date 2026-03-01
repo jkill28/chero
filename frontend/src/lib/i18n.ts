@@ -41,7 +41,8 @@ export const translations = {
     },
     noTransactions: 'Aucune opération pour cette journée',
     income: 'Revenu',
-    expense: 'Dépense'
+    expense: 'Dépense',
+    selectDate: 'Choisir une date'
   },
   en: {
     title: 'Chéro',
@@ -85,13 +86,14 @@ export const translations = {
     },
     noTransactions: 'No transactions for this day',
     income: 'Income',
-    expense: 'Expense'
+    expense: 'Expense',
+    selectDate: 'Select date'
   }
 };
 
 export type Language = 'fr' | 'en';
 
-export const t = (lang: string, key: keyof typeof translations.fr): any => {
+export const t = (lang: string, key: keyof typeof translations.fr): string | string[] | { WEEKLY: string, MONTHLY: string } => {
   const l = (lang === 'en' ? 'en' : 'fr') as Language;
   return translations[l][key] || translations.fr[key];
 };
