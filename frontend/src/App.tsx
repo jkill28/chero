@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import axios from 'axios';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, startOfDay, isSameDay } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
@@ -22,6 +22,29 @@ function App() {
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
+  const fetchTransactions = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/transactions`);
+      setTransactions(res.data);
+    } catch (error) {
+      console.error('Failed to fetch transactions', error);
+    }
+  }, []);
+
+  const fetchSettings = useCallback(async () => {
+    try {
+      const res = await axios.get(`${API_BASE}/settings`);
+      setSettings(res.data);
+    } catch (error) {
+      console.error('Failed to fetch settings', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchTransactions();
+    fetchSettings();
+  }, [fetchTransactions, fetchSettings]);
+
   const todayBalance = useMemo(() => {
     const today = startOfDay(new Date());
     const { balances: allBalances } = getDailyBalances(transactions, settings.initialBalance, today, today);
@@ -35,29 +58,6 @@ function App() {
     const str = format(today, 'EEEE do MMM', { locale });
     return str.charAt(0).toUpperCase() + str.slice(1);
   }, [settings.language]);
-
-  async function fetchTransactions() {
-    try {
-      const res = await axios.get(`${API_BASE}/transactions`);
-      setTransactions(res.data);
-    } catch (error) {
-      console.error('Failed to fetch transactions', error);
-    }
-  }
-
-  async function fetchSettings() {
-    try {
-      const res = await axios.get(`${API_BASE}/settings`);
-      setSettings(res.data);
-    } catch (error) {
-      console.error('Failed to fetch settings', error);
-    }
-  }
-
-  useEffect(() => {
-    fetchTransactions();
-    fetchSettings();
-  }, []);
 
   const { balances, dailyTransactions } = useMemo(() => {
     const monthStart = startOfMonth(currentDate);
@@ -201,40 +201,41 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 sm:p-8">
+    <div className="min-h-screen bg-m3-surface text-m3-on-surface p-3 sm:p-8 transition-colors">
       <div className="max-w-6xl mx-auto">
-        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-          <div className="w-full sm:w-auto">
-            <h1 className="text-3xl font-bold">{t(settings.language, 'title')}</h1>
-            <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base">
-              {formattedDate} (
-              <span className="sm:hidden">{formatCurrency(todayBalance, settings.currency, settings.language, true)}</span>
-              <span className="hidden sm:inline">{formatCurrency(todayBalance, settings.currency, settings.language)}</span>
-              )
+        <header className="flex flex-row justify-between items-center mb-2 sm:mb-10 gap-2">
+          <div className="flex flex-row items-baseline gap-2">
+            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-m3-primary leading-tight">{t(settings.language, 'title')}</h1>
+            <p className="text-[10px] sm:text-sm text-m3-on-surface-variant font-medium opacity-80 whitespace-nowrap">
+              <span className="hidden sm:inline">{formattedDate} </span>
+              (<span className="sm:hidden">{formatCurrency(todayBalance, settings.currency, settings.language, true)}</span>
+              <span className="hidden sm:inline">{formatCurrency(todayBalance, settings.currency, settings.language)}</span>)
             </p>
           </div>
-          <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end">
+          <div className="flex items-center space-x-2 sm:space-x-3">
             <button
               onClick={() => {
                 setSelectedTransaction(null);
                 setSelectedDate(new Date());
                 setIsModalOpen(true);
               }}
-              className="bg-indigo-600 text-white px-3 py-2 rounded-md hover:bg-indigo-700 flex items-center text-xs sm:text-base whitespace-nowrap"
+              className="bg-m3-primary-container text-m3-on-primary-container p-2.5 sm:px-6 sm:py-4 rounded-m3-lg hover:shadow-lg flex items-center text-sm sm:text-base font-semibold transition-all"
+              title={t(settings.language, 'addTransaction')}
             >
-              <Plus size={18} className="mr-1 sm:mr-2" /> {t(settings.language, 'addTransaction')}
+              <Plus size={20} className="sm:mr-2" />
+              <span className="hidden sm:inline">{t(settings.language, 'addTransaction')}</span>
             </button>
             <button
               onClick={() => setIsSettingsOpen(true)}
-              title="Paramètres"
-              className="p-2 bg-white dark:bg-gray-800 rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              title={t(settings.language, 'settings')}
+              className="p-2.5 sm:p-4 bg-m3-surface-container-high text-m3-on-surface rounded-m3-lg border border-m3-outline/20 hover:bg-m3-surface-container transition-colors shadow-sm"
             >
-              <SettingsIcon size={24} className="text-gray-600 dark:text-gray-300" />
+              <SettingsIcon size={20} className="sm:w-6 sm:h-6" />
             </button>
           </div>
         </header>
 
-        <main>
+        <main className="space-y-4 sm:space-y-8">
           <Calendar
             currentDate={currentDate}
             selectedDate={selectedDate}
@@ -247,24 +248,24 @@ function App() {
             language={settings.language}
           />
 
-          {/* Mobile Operations List */}
-          <div className="mt-6 sm:hidden bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-            <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
-              <h3 className="font-bold dark:text-white capitalize">
+          {/* Mobile Operations List - Redesigned for M3 */}
+          <div className="mt-4 sm:hidden bg-m3-surface-container rounded-m3-xl shadow-md overflow-hidden">
+            <div className="px-5 py-3 border-b border-m3-outline/10 flex justify-between items-center">
+              <h3 className="text-base font-bold text-m3-on-surface capitalize">
                 {format(selectedDate, 'EEEE do MMMM', { locale: settings.language === 'en' ? enUS : fr })}
               </h3>
             </div>
-            <div className="divide-y divide-gray-200 dark:divide-gray-700">
+            <div className="divide-y divide-m3-outline/5 px-1.5">
               {dailyTransactions[format(selectedDate, 'yyyy-MM-dd')]?.length ? (
                 dailyTransactions[format(selectedDate, 'yyyy-MM-dd')].map((occ, idx) => (
                   <div
                     key={`${occ.transaction.id}-${idx}`}
                     onClick={() => handleTransactionClick(occ.transaction, occ.date)}
-                    className="px-4 py-3 flex justify-between items-center hover:bg-gray-50 dark:hover:bg-gray-700/50 cursor-pointer"
+                    className="px-3 py-3 flex justify-between items-center hover:bg-m3-on-surface/5 cursor-pointer rounded-xl transition-colors m-0.5"
                   >
                     <div className="flex flex-col">
-                      <span className="text-sm font-medium dark:text-gray-200">{occ.transaction.description}</span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">
+                      <span className="text-sm font-semibold text-m3-on-surface">{occ.transaction.description}</span>
+                      <span className="text-[10px] text-m3-on-surface-variant font-medium mt-0.5">
                         {occ.transaction.amount >= 0 ? t(settings.language, 'income') : t(settings.language, 'expense')}
                       </span>
                     </div>
@@ -277,7 +278,7 @@ function App() {
                   </div>
                 ))
               ) : (
-                <div className="px-4 py-8 text-center text-gray-500 dark:text-gray-400 text-sm">
+                <div className="px-4 py-6 text-center text-m3-on-surface-variant text-[11px] font-medium italic">
                   {t(settings.language, 'noTransactions')}
                 </div>
               )}
@@ -285,7 +286,7 @@ function App() {
           </div>
         </main>
 
-        <footer className="mt-8 text-center text-gray-500 text-sm">
+        <footer className="mt-6 sm:mt-12 text-center text-m3-on-surface-variant/60 text-[10px] sm:text-sm font-medium pb-4 sm:pb-8">
           <p>{t(settings.language, 'footer')}</p>
         </footer>
       </div>

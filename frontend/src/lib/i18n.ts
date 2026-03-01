@@ -41,7 +41,8 @@ export const translations = {
     },
     noTransactions: 'Aucune opération pour cette journée',
     income: 'Revenu',
-    expense: 'Dépense'
+    expense: 'Dépense',
+    selectDate: 'Choisir une date'
   },
   en: {
     title: 'Chéro',
@@ -85,7 +86,8 @@ export const translations = {
     },
     noTransactions: 'No transactions for this day',
     income: 'Income',
-    expense: 'Expense'
+    expense: 'Expense',
+    selectDate: 'Select date'
   }
 };
 
