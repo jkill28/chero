@@ -27,12 +27,12 @@ A web application for personal finance management with a calendar view.
 
 - **Mobile view, light theme**:
  
-  <img width="501" height="730" alt="image" src="https://github.com/user-attachments/assets/1cd16bcf-b65d-49c4-9e04-c902446f38a7" />
+  <img width="500" height="730" alt="image" src="https://github.com/user-attachments/assets/b240dda8-b783-44b0-ab3f-8f85a2b0eec5" />
 
 
 - **Mobile view, Dark theme**:
   
-  <img width="501" height="730" alt="image" src="https://github.com/user-attachments/assets/ebfe0828-77a6-49a4-ae17-ed9eacebd30a" />
+  <img width="500" height="730" alt="image" src="https://github.com/user-attachments/assets/6842d470-4b89-4613-83c1-8ef66cc967f8" />
 
 
 ## How to launch
