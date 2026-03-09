@@ -7,7 +7,7 @@ import { TransactionModal } from './components/TransactionModal';
 import { SettingsModal } from './components/SettingsModal';
 import type { Transaction, Settings } from './types';
 import { getDailyBalances } from './lib/balance';
-import { Settings as SettingsIcon, Plus } from 'lucide-react';
+import { Settings as SettingsIcon, Plus, Search } from 'lucide-react';
 import { t } from './lib/i18n';
 import { cn, formatCurrency } from './lib/utils';
 
@@ -21,6 +21,7 @@ function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [searchTerm, setSearchTerm] = useState('');
 
   const fetchTransactions = useCallback(async () => {
     try {
@@ -200,6 +201,15 @@ function App() {
     }
   };
 
+  const filteredTransactions = useMemo(() => {
+    if (!searchTerm.trim()) return [];
+    const lowerSearch = searchTerm.toLowerCase();
+    return transactions.filter(tx =>
+      tx.description.toLowerCase().includes(lowerSearch) ||
+      tx.amount.toString().includes(lowerSearch)
+    );
+  }, [transactions, searchTerm]);
+
   return (
     <div className="min-h-screen bg-m3-surface text-m3-on-surface p-3 sm:p-8 transition-colors">
       <div className="max-w-6xl mx-auto">
@@ -280,6 +290,61 @@ function App() {
               ) : (
                 <div className="px-4 py-6 text-center text-m3-on-surface-variant text-[11px] font-medium italic">
                   {t(settings.language, 'noTransactions')}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Search Section */}
+          <div className="bg-m3-surface-container rounded-m3-xl shadow-md overflow-hidden">
+            <div className="px-5 py-3 border-b border-m3-outline/10">
+              <h3 className="text-base font-bold text-m3-on-surface">
+                {t(settings.language, 'search')}
+              </h3>
+            </div>
+            <div className="p-4 sm:p-6">
+              <div className="relative mb-4">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search size={18} className="text-m3-on-surface-variant/60" />
+                </div>
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder={t(settings.language, 'searchPlaceholder')}
+                  className="block w-full pl-10 pr-3 py-3 bg-m3-surface-container-high border border-m3-outline/20 rounded-m3-lg text-m3-on-surface placeholder-m3-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-m3-primary/50 transition-all text-sm sm:text-base"
+                />
+              </div>
+
+              {searchTerm.trim() !== '' && (
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-1">
+                  {filteredTransactions.length > 0 ? (
+                    filteredTransactions.map((tx) => (
+                      <div
+                        key={tx.id}
+                        onClick={() => handleTransactionClick(tx, tx.date)}
+                        className="p-3 flex justify-between items-center bg-m3-surface hover:bg-m3-on-surface/5 cursor-pointer rounded-m3-lg transition-colors border border-m3-outline/5"
+                      >
+                        <div className="flex flex-col">
+                        <span className="text-sm font-semibold text-m3-on-surface">{tx.description}</span>
+                        <span className="text-[10px] text-m3-on-surface-variant font-medium mt-0.5">
+                          {format(new Date(tx.date), 'dd/MM/yyyy', { locale: settings.language === 'en' ? enUS : fr })}
+                          {tx.recurrence !== 'NONE' && ` • ${t(settings.language, tx.recurrence.toLowerCase() as any)}`}
+                        </span>
+                      </div>
+                        <span className={cn(
+                          "text-sm font-bold",
+                          tx.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                        )}>
+                          {tx.amount > 0 ? '+' : ''}{formatCurrency(tx.amount, settings.currency, settings.language)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-8 text-center text-m3-on-surface-variant/60 text-sm italic font-medium">
+                      {t(settings.language, 'noResults')}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

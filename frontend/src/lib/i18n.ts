@@ -42,7 +42,10 @@ export const translations = {
     noTransactions: 'Aucune opération pour cette journée',
     income: 'Revenu',
     expense: 'Dépense',
-    selectDate: 'Choisir une date'
+    selectDate: 'Choisir une date',
+    search: 'Recherche',
+    searchPlaceholder: 'Rechercher une opération ou un montant...',
+    noResults: 'Aucun résultat trouvé'
   },
   en: {
     title: 'Chéro',
@@ -87,7 +90,10 @@ export const translations = {
     noTransactions: 'No transactions for this day',
     income: 'Income',
     expense: 'Expense',
-    selectDate: 'Select date'
+    selectDate: 'Select date',
+    search: 'Search',
+    searchPlaceholder: 'Search for a transaction or amount...',
+    noResults: 'No results found'
   }
 };
 
