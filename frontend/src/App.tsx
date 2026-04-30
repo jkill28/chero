@@ -7,7 +7,7 @@ import { TransactionModal } from './components/TransactionModal';
 import { SettingsModal } from './components/SettingsModal';
 import type { Transaction, Settings } from './types';
 import { getDailyBalances } from './lib/balance';
-import { Settings as SettingsIcon, Plus } from 'lucide-react';
+import { Settings as SettingsIcon, Plus, Download, Upload } from 'lucide-react';
 import { t } from './lib/i18n';
 import { cn, formatCurrency } from './lib/utils';
 
@@ -200,6 +200,33 @@ function App() {
     }
   };
 
+  const handleBackup = () => {
+    window.location.href = `${API_BASE}/backup`;
+  };
+
+  const handleRestore = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('backup', file);
+
+    try {
+      await axios.post(`${API_BASE}/restore`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      alert(t(settings.language, 'restoreSuccess'));
+      window.location.reload();
+    } catch (error) {
+      console.error('Restore failed', error);
+      alert(t(settings.language, 'restoreError'));
+    }
+    // Reset input
+    e.target.value = '';
+  };
+
   return (
     <div className="min-h-screen bg-m3-surface text-m3-on-surface p-3 sm:p-8 transition-colors">
       <div className="max-w-6xl mx-auto">
@@ -286,8 +313,27 @@ function App() {
           </div>
         </main>
 
-        <footer className="mt-6 sm:mt-12 text-center text-m3-on-surface-variant/60 text-[10px] sm:text-sm font-medium pb-4 sm:pb-8">
+        <footer className="mt-6 sm:mt-12 text-center text-m3-on-surface-variant/60 text-[10px] sm:text-sm font-medium pb-4 sm:pb-8 flex flex-col items-center gap-4">
           <p>{t(settings.language, 'footer')}</p>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handleBackup}
+              className="flex items-center gap-1.5 hover:text-m3-primary transition-colors px-3 py-1.5 rounded-full hover:bg-m3-primary/10"
+            >
+              <Download size={14} />
+              <span>{t(settings.language, 'backup')}</span>
+            </button>
+            <label className="flex items-center gap-1.5 hover:text-m3-primary transition-colors cursor-pointer px-3 py-1.5 rounded-full hover:bg-m3-primary/10">
+              <Upload size={14} />
+              <span>{t(settings.language, 'restore')}</span>
+              <input
+                type="file"
+                accept=".db"
+                className="hidden"
+                onChange={handleRestore}
+              />
+            </label>
+          </div>
         </footer>
       </div>
 
