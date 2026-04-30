@@ -13,6 +13,7 @@ A web application for personal finance management with a calendar view.
 - **Daily Balance**: View your projected balance for each day of the calendar.
 - **Balance adjustement**: Adjust the daily balance manually.
 - **Dockerized**: Easy deployment with Docker.
+- **Backup / Restore**: UI to back up and restore the DB
 
 ## Preview
 
