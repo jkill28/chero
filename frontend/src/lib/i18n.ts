@@ -42,7 +42,11 @@ export const translations = {
     noTransactions: 'Aucune opération pour cette journée',
     income: 'Revenu',
     expense: 'Dépense',
-    selectDate: 'Choisir une date'
+    selectDate: 'Choisir une date',
+    backup: 'Sauvegarder',
+    restore: 'Restaurer',
+    restoreSuccess: 'Sauvegarde restaurée avec succès',
+    restoreError: 'Échec de la restauration de la sauvegarde'
   },
   en: {
     title: 'Chéro',
@@ -87,7 +91,11 @@ export const translations = {
     noTransactions: 'No transactions for this day',
     income: 'Income',
     expense: 'Expense',
-    selectDate: 'Select date'
+    selectDate: 'Select date',
+    backup: 'Backup',
+    restore: 'Restore',
+    restoreSuccess: 'Backup restored successfully',
+    restoreError: 'Failed to restore backup'
   }
 };
 

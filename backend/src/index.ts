@@ -3,14 +3,16 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
+import multer from 'multer';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const prisma = new PrismaClient();
+let prisma = new PrismaClient();
 const app = express();
 const port = process.env.PORT || 3003;
 
@@ -115,6 +117,57 @@ app.post('/api/settings', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+// Backup & Restore
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+}
+
+const upload = multer({ dest: uploadsDir });
+
+app.get('/api/backup', (req, res) => {
+  const dbPath = path.join(__dirname, '../prisma/dev.db');
+  if (fs.existsSync(dbPath)) {
+    res.download(dbPath, 'cher_backup.db');
+  } else {
+    res.status(404).json({ error: 'Database file not found' });
+  }
+});
+
+app.post('/api/restore', upload.single('backup'), async (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+
+  const dbPath = path.join(__dirname, '../prisma/dev.db');
+  const walPath = `${dbPath}-wal`;
+  const shmPath = `${dbPath}-shm`;
+  const backupPath = req.file.path;
+
+  try {
+    // Close prisma connection before replacing the file
+    await prisma.$disconnect();
+
+    // Delete WAL and SHM files if they exist to prevent corruption
+    if (fs.existsSync(walPath)) fs.unlinkSync(walPath);
+    if (fs.existsSync(shmPath)) fs.unlinkSync(shmPath);
+
+    // Copy uploaded file to dev.db
+    fs.copyFileSync(backupPath, dbPath);
+
+    // Delete temporary upload
+    fs.unlinkSync(backupPath);
+
+    // Re-initialize prisma
+    prisma = new PrismaClient();
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Restore error:', error);
+    res.status(500).json({ error: 'Failed to restore backup' });
   }
 });
 
