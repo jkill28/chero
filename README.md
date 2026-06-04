@@ -15,25 +15,6 @@ A web application for personal finance management with a calendar view.
 - **Dockerized**: Easy deployment with Docker.
 - **Backup / Restore**: UI to back up and restore the DB
 
-## Preview
-
-- **Calendar view**:
-  <img width="1081" height="1196" alt="image" src="https://github.com/user-attachments/assets/ce182a58-2cd4-4c00-9a11-d0b3f3e1106b" />
- 
-
-- **Transaction view**:
-  
-  <img width="501" height="732" alt="image" src="https://github.com/user-attachments/assets/80850ba2-664d-4cb3-b45b-0f4317dced26" />
-
-
-- **Mobile view, light theme**:
- 
-  <img width="500" height="730" alt="image" src="https://github.com/user-attachments/assets/b240dda8-b783-44b0-ab3f-8f85a2b0eec5" />
-
-
-- **Mobile view, Dark theme**:
-  
-  <img width="500" height="730" alt="image" src="https://github.com/user-attachments/assets/6842d470-4b89-4613-83c1-8ef66cc967f8" />
 
 
 ## How to launch
