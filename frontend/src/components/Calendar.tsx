@@ -60,8 +60,8 @@ export const Calendar: React.FC<CalendarProps> = ({
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStart) return;
-    const touchEnd = e.targetTouches[0].clientX;
+    if (touchStart === null) return;
+    const touchEnd = e.changedTouches[0].clientX;
     const delta = touchStart - touchEnd;
 
     if (delta > 50) {
