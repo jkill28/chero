@@ -41,6 +41,7 @@ export const Calendar: React.FC<CalendarProps> = ({
   language,
 }) => {
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [slideDirection, setSlideDirection] = useState<'left' | 'right' | null>(null);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -52,8 +53,15 @@ export const Calendar: React.FC<CalendarProps> = ({
     end: endDate,
   });
 
-  const nextMonth = () => onDateChange(addMonths(currentDate, 1));
-  const prevMonth = () => onDateChange(subMonths(currentDate, 1));
+  const handleNextMonth = () => {
+    setSlideDirection('right');
+    onDateChange(addMonths(currentDate, 1));
+  };
+
+  const handlePrevMonth = () => {
+    setSlideDirection('left');
+    onDateChange(subMonths(currentDate, 1));
+  };
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.targetTouches[0].clientX);
@@ -65,9 +73,9 @@ export const Calendar: React.FC<CalendarProps> = ({
     const delta = touchStart - touchEnd;
 
     if (delta > 50) {
-      nextMonth();
+      handleNextMonth();
     } else if (delta < -50) {
-      prevMonth();
+      handlePrevMonth();
     }
     setTouchStart(null);
   };
@@ -96,13 +104,13 @@ export const Calendar: React.FC<CalendarProps> = ({
           </div>
           <div className="flex space-x-0.5 sm:space-x-1">
             <button
-              onClick={prevMonth}
+              onClick={handlePrevMonth}
               className="p-1.5 sm:p-2 hover:bg-m3-on-surface-variant/10 text-m3-on-surface-variant rounded-full transition-colors"
             >
               <ChevronLeft size={20} className="sm:w-6 sm:h-6" />
             </button>
             <button
-              onClick={nextMonth}
+              onClick={handleNextMonth}
               className="p-1.5 sm:p-2 hover:bg-m3-on-surface-variant/10 text-m3-on-surface-variant rounded-full transition-colors"
             >
               <ChevronRight size={20} className="sm:w-6 sm:h-6" />
@@ -123,8 +131,17 @@ export const Calendar: React.FC<CalendarProps> = ({
         ))}
       </div>
 
-      {/* Days grid */}
-      <div className="grid grid-cols-7 px-1 sm:px-2 pb-2 sm:pb-4">
+      {/* Days grid container with animation */}
+      <div className="overflow-hidden">
+        <div
+          key={format(currentDate, 'yyyy-MM')}
+          className={cn(
+            "grid grid-cols-7 px-1 sm:px-2 pb-2 sm:pb-4",
+            slideDirection === 'right' && "animate-slide-in-right",
+            slideDirection === 'left' && "animate-slide-in-left"
+          )}
+          onAnimationEnd={() => setSlideDirection(null)}
+        >
         {calendarDays.map((day) => {
           const dateKey = format(day, 'yyyy-MM-dd');
           const balance = balances[dateKey];
@@ -222,6 +239,7 @@ export const Calendar: React.FC<CalendarProps> = ({
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );
