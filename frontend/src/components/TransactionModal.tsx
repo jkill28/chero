@@ -99,10 +99,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-m3-on-surface/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-m3-surface-container rounded-m3-xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 bg-m3-on-surface/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-m3-surface-container rounded-m3-xl w-full max-w-md shadow-2xl overflow-hidden border border-m3-outline/20 animate-in fade-in zoom-in duration-200">
         <div className="flex justify-between items-center px-6 py-6 border-b border-m3-outline/10">
-          <h2 className="text-2xl font-bold text-m3-on-surface">
+          <h2 className="text-2xl font-extrabold tracking-wide text-m3-on-surface">
             {transaction ? t(language, 'editTransaction') : t(language, 'newTransaction')}
           </h2>
           <button onClick={onClose} className="p-2 text-m3-on-surface-variant hover:bg-m3-on-surface/10 rounded-full transition-colors">
@@ -110,14 +110,14 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           </button>
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="flex p-1.5 bg-m3-surface-container-high rounded-m3-lg gap-1">
+          <div className="flex p-1.5 bg-m3-surface-container-high rounded-m3-lg gap-1 border border-m3-outline/10">
             <button
               type="button"
               onClick={() => setType('credit')}
               className={cn(
                 "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
                 type === 'credit'
-                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                  ? 'bg-m3-primary text-m3-on-primary shadow-sm dark:neon-glow-cyan'
                   : 'text-m3-on-surface-variant hover:text-m3-on-surface'
               )}
             >
@@ -129,7 +129,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               className={cn(
                 "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
                 type === 'debit'
-                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                  ? 'bg-m3-primary text-m3-on-primary shadow-sm dark:neon-glow-cyan'
                   : 'text-m3-on-surface-variant hover:text-m3-on-surface'
               )}
             >
@@ -141,7 +141,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               className={cn(
                 "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
                 type === 'adjustment'
-                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
+                  ? 'bg-m3-primary text-m3-on-primary shadow-sm dark:neon-glow-cyan'
                   : 'text-m3-on-surface-variant hover:text-m3-on-surface'
               )}
             >
@@ -151,7 +151,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="tx-amount" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'amount')}</label>
+              <label htmlFor="tx-amount" className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'amount')}</label>
               <input
                 id="tx-amount"
                 type="number"
@@ -165,7 +165,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               />
             </div>
             <div>
-              <label htmlFor="tx-description" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'description')}</label>
+              <label htmlFor="tx-description" className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'description')}</label>
               <input
                 id="tx-description"
                 type="text"
@@ -177,7 +177,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'date')}</label>
+              <label className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'date')}</label>
               <input
                 type="date"
                 name="date"
@@ -190,8 +190,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           </div>
 
           {transaction && transaction.recurrence !== 'NONE' && (
-            <div className="p-4 bg-m3-primary-container/30 rounded-m3-lg space-y-3">
-              <label className="block text-sm font-bold text-m3-on-primary-container uppercase tracking-wider">{t(language, 'editMode')}</label>
+            <div className="p-4 bg-m3-primary-container/30 rounded-m3-lg space-y-3 border border-m3-outline/20">
+              <label className="block text-xs font-extrabold text-m3-on-primary-container uppercase tracking-wider">{t(language, 'editMode')}</label>
               <div className="space-y-2">
                 <label className="flex items-center text-sm font-semibold text-m3-on-surface cursor-pointer">
                   <input
@@ -217,7 +217,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'recurrence')}</label>
+              <label className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'recurrence')}</label>
               <select
                 value={recurrence}
                 onChange={(e) => setRecurrence(e.target.value as Recurrence)}
@@ -230,7 +230,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </div>
             {recurrence !== 'NONE' && (
               <div>
-                <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">
+                <label className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">
                   {recurrence === 'WEEKLY' ? t(language, 'everyXWeeks').replace('{n}', '') : t(language, 'everyXMonths').replace('{n}', '')}
                 </label>
                 <div className="flex items-center gap-2">
@@ -263,7 +263,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {recurrence !== 'NONE' && (
             <div>
-              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'endDate')}</label>
+              <label className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'endDate')}</label>
               <input
                 type="date"
                 value={recurrenceEndDate}
@@ -278,13 +278,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3.5 text-m3-primary font-bold hover:bg-m3-primary/5 rounded-full transition-colors"
+                className="px-6 py-3.5 text-m3-primary font-bold hover:bg-m3-primary/10 rounded-full transition-colors"
               >
                 {t(language, 'cancel')}
               </button>
               <button
                 type="submit"
-                className="bg-m3-primary text-m3-on-primary px-8 py-3.5 rounded-full font-bold shadow-md hover:shadow-lg transition-all"
+                className="bg-m3-primary text-m3-on-primary px-8 py-3.5 rounded-full font-bold shadow-md dark:neon-glow-cyan hover:shadow-lg transition-all"
               >
                 {t(language, 'save')}
               </button>
@@ -297,21 +297,21 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                     <button
                       type="button"
                       onClick={() => onDeleteComplex?.(transaction.id, 'single')}
-                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
+                      className="text-rose-600 dark:text-[#ff2a85] hover:bg-rose-50 dark:hover:bg-rose-950/30 p-2 text-sm font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteThis')}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDeleteComplex?.(transaction.id, 'future')}
-                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
+                      className="text-rose-600 dark:text-[#ff2a85] hover:bg-rose-50 dark:hover:bg-rose-950/30 p-2 text-sm font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteFromHere')}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDelete?.(transaction.id)}
-                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
+                      className="text-rose-600 dark:text-[#ff2a85] hover:bg-rose-50 dark:hover:bg-rose-950/30 p-2 text-sm font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteAll')}
                     </button>
@@ -320,7 +320,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onDelete?.(transaction.id)}
-                    className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-center rounded-lg transition-colors"
+                    className="text-rose-600 dark:text-[#ff2a85] hover:bg-rose-50 dark:hover:bg-rose-950/30 p-2 text-sm font-bold text-center rounded-lg transition-colors"
                   >
                     {t(language, 'delete')}
                   </button>

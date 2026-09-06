@@ -20,15 +20,15 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-m3-on-surface/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-m3-surface-container rounded-m3-xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 bg-m3-on-surface/40 backdrop-blur-md flex items-center justify-center z-50 p-4">
+      <div className="bg-m3-surface-container rounded-m3-xl w-full max-w-md shadow-2xl overflow-hidden border border-m3-outline/20 animate-in fade-in zoom-in duration-200">
         <div className="px-6 py-6 border-b border-m3-outline/10">
-          <h2 className="text-2xl font-bold text-m3-on-surface">{t(settings.language, 'settings')}</h2>
+          <h2 className="text-2xl font-extrabold tracking-wide text-m3-on-surface">{t(settings.language, 'settings')}</h2>
         </div>
         <form onSubmit={onSave} className="p-6 space-y-6">
           <div className="space-y-4">
             <div>
-              <label htmlFor="language" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(settings.language, 'language')}</label>
+              <label htmlFor="language" className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(settings.language, 'language')}</label>
               <select
                 id="language"
                 value={settings.language}
@@ -40,7 +40,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </select>
             </div>
             <div>
-              <label htmlFor="currency" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(settings.language, 'currency')}</label>
+              <label htmlFor="currency" className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(settings.language, 'currency')}</label>
               <select
                 id="currency"
                 value={settings.currency}
@@ -56,7 +56,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               </select>
             </div>
             <div>
-              <label htmlFor="initialBalance" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(settings.language, 'initialBalance')}</label>
+              <label htmlFor="initialBalance" className="block text-xs font-extrabold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(settings.language, 'initialBalance')}</label>
               <input
                 id="initialBalance"
                 type="number"
@@ -71,13 +71,13 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-3.5 text-m3-primary font-bold hover:bg-m3-primary/5 rounded-full transition-colors"
+              className="px-6 py-3.5 text-m3-primary font-bold hover:bg-m3-primary/10 rounded-full transition-colors"
             >
               {t(settings.language, 'cancel')}
             </button>
             <button
               type="submit"
-              className="bg-m3-primary text-m3-on-primary px-8 py-3.5 rounded-full font-bold shadow-md hover:shadow-lg transition-all"
+              className="bg-m3-primary text-m3-on-primary px-8 py-3.5 rounded-full font-bold shadow-md dark:neon-glow-cyan hover:shadow-lg transition-all"
             >
               {t(settings.language, 'save')}
             </button>
