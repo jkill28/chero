@@ -77,21 +77,21 @@ export const Calendar: React.FC<CalendarProps> = ({
 
   return (
     <div
-      className="w-full bg-m3-surface-container rounded-m3-xl shadow-lg overflow-hidden transition-colors"
+      className="w-full bg-m3-surface-container rounded-m3-xl shadow-lg overflow-hidden transition-colors border border-m3-outline/20"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
-      {/* M3 Expressive Header */}
+      {/* Header */}
       <div className="px-4 py-3 sm:px-6 sm:pt-6 sm:pb-4 bg-m3-surface-container border-b border-m3-outline/10">
-        <div className="hidden sm:block text-m3-on-surface-variant text-sm font-medium mb-1 uppercase tracking-wider">
+        <div className="hidden sm:block text-m3-on-surface-variant text-sm font-semibold mb-1 uppercase tracking-widest">
           {t(language, 'selectDate') || 'Select date'}
         </div>
-        <div className="hidden sm:flex text-m3-on-surface text-3xl font-semibold mb-6 justify-between items-end">
+        <div className="hidden sm:flex text-m3-on-surface text-3xl font-bold mb-6 justify-between items-end tracking-tight">
           <span>{format(selectedDate, 'EEE, MMM d', { locale })}</span>
         </div>
 
         <div className="flex items-center justify-between">
-          <div className="text-m3-on-surface text-sm sm:text-base font-semibold capitalize">
+          <div className="text-m3-on-surface text-sm sm:text-lg font-bold capitalize tracking-wide">
             {format(currentDate, 'MMMM yyyy', { locale })}
           </div>
           <div className="flex space-x-0.5 sm:space-x-1">
@@ -112,11 +112,11 @@ export const Calendar: React.FC<CalendarProps> = ({
       </div>
 
       {/* Week days labels */}
-      <div className="grid grid-cols-7 px-1 sm:px-2">
+      <div className="grid grid-cols-7 px-1 sm:px-2 border-b border-m3-outline/5">
         {weekDays.map((day) => (
           <div
             key={day}
-            className="h-8 sm:h-12 flex items-center justify-center text-[10px] sm:text-sm font-medium text-m3-on-surface-variant"
+            className="h-8 sm:h-12 flex items-center justify-center text-[10px] sm:text-xs font-extrabold text-m3-on-surface-variant uppercase tracking-wider"
           >
             {day[0]}
           </div>
@@ -142,19 +142,19 @@ export const Calendar: React.FC<CalendarProps> = ({
               key={day.toString()}
               onClick={() => onDayClick(day)}
               className={cn(
-                "min-h-[70px] sm:min-h-[160px] flex flex-col items-center pt-1 sm:pt-2 pb-1 relative cursor-pointer rounded-lg sm:rounded-xl transition-colors group",
-                !isCurrentMonth && "opacity-40",
+                "min-h-[70px] sm:min-h-[160px] flex flex-col items-center pt-1 sm:pt-2 pb-1 relative cursor-pointer rounded-lg sm:rounded-xl transition-all group",
+                !isCurrentMonth && "opacity-35",
                 "hover:bg-m3-on-surface/5",
-                isSelected && "bg-m3-primary/5"
+                isSelected && "bg-m3-primary/10 dark:neon-border-cyan"
               )}
             >
               {/* Date circle */}
               <div className={cn(
                 "w-8 h-8 sm:w-11 sm:h-11 flex items-center justify-center rounded-full text-sm sm:text-lg font-bold transition-all",
                 isSelected
-                  ? "bg-m3-primary text-m3-on-primary shadow-md scale-105 sm:scale-110"
+                  ? "bg-m3-primary text-m3-on-primary shadow-md scale-105 sm:scale-110 dark:neon-glow-cyan"
                   : isToday
-                    ? "border sm:border-2 border-m3-primary text-m3-primary"
+                    ? "border sm:border-2 border-m3-primary text-m3-primary font-black"
                     : "text-m3-on-surface group-hover:bg-m3-on-surface/10"
               )}>
                 {format(day, 'd')}
@@ -165,7 +165,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                 {balance !== undefined && (
                   <div className={cn(
                     "text-[10px] sm:text-[13px] font-black truncate",
-                    balance >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                    balance >= 0 ? "text-emerald-600 dark:text-[#00ff9d]" : "text-rose-600 dark:text-[#ff2a85]"
                   )}>
                     {formatCurrency(balance, currency, language, true)}
                   </div>
@@ -173,7 +173,7 @@ export const Calendar: React.FC<CalendarProps> = ({
                 {transactions.length > 0 && (
                   <div className={cn(
                     "text-[9px] sm:text-[11px] font-bold truncate",
-                    dailyNet >= 0 ? "text-emerald-500" : "text-rose-500"
+                    dailyNet >= 0 ? "text-emerald-500 dark:text-[#00f0ff]" : "text-rose-500 dark:text-[#ff2a85]"
                   )}>
                     {dailyNet > 0 ? '+' : ''}{formatCurrency(dailyNet, currency, language, true)}
                   </div>
@@ -190,12 +190,12 @@ export const Calendar: React.FC<CalendarProps> = ({
                       onTransactionClick(occ.transaction, occ.date);
                     }}
                     className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded-m3-xs truncate transition-all hover:brightness-95 flex justify-between items-center",
+                      "text-[10px] px-1.5 py-0.5 rounded-m3-xs truncate transition-all flex justify-between items-center border-l-2",
                       occ.transaction.isAdjustment
-                        ? "bg-amber-100 text-amber-900 border-l-2 border-amber-500 dark:bg-amber-900/30 dark:text-amber-200"
+                        ? "bg-amber-100 text-amber-900 border-amber-500 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-400"
                         : occ.transaction.amount >= 0
-                          ? "bg-emerald-100 text-emerald-900 border-l-2 border-emerald-500 dark:bg-emerald-900/30 dark:text-emerald-200"
-                          : "bg-rose-100 text-rose-900 border-l-2 border-rose-500 dark:bg-rose-900/30 dark:text-rose-200"
+                          ? "bg-emerald-100 text-emerald-900 border-emerald-500 dark:bg-[#00f0ff]/10 dark:text-[#00f0ff] dark:border-[#00f0ff]"
+                          : "bg-rose-100 text-rose-900 border-rose-500 dark:bg-[#ff2a85]/10 dark:text-[#ff2a85] dark:border-[#ff2a85]"
                     )}
                     title={`${occ.transaction.description}: ${occ.transaction.amount}`}
                   >
@@ -213,8 +213,8 @@ export const Calendar: React.FC<CalendarProps> = ({
                   <div
                     key={idx}
                     className={cn(
-                      "w-0.5 h-0.5 rounded-full",
-                      occ.transaction.amount >= 0 ? "bg-emerald-400" : "bg-rose-400"
+                      "w-1 h-1 rounded-full",
+                      occ.transaction.amount >= 0 ? "bg-emerald-400 dark:bg-[#00f0ff]" : "bg-rose-400 dark:bg-[#ff2a85]"
                     )}
                   />
                 ))}

@@ -77,24 +77,24 @@ body {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --m3-primary: #d0bcff;
-    --m3-on-primary: #381e72;
-    --m3-primary-container: #4f378b;
-    --m3-on-primary-container: #eaddff;
+    --m3-primary: #00f0ff;
+    --m3-on-primary: #050510;
+    --m3-primary-container: #00364a;
+    --m3-on-primary-container: #b3f5ff;
 
-    --m3-secondary: #ccc2dc;
-    --m3-on-secondary: #332d41;
-    --m3-secondary-container: #4a4458;
-    --m3-on-secondary-container: #e8def8;
+    --m3-secondary: #ff2a85;
+    --m3-on-secondary: #ffffff;
+    --m3-secondary-container: #4a0024;
+    --m3-on-secondary-container: #ffb8d9;
 
-    --m3-surface: #141218;
-    --m3-on-surface: #e6e1e9;
-    --m3-surface-variant: #49454f;
-    --m3-on-surface-variant: #cac4d0;
+    --m3-surface: #0a0915;
+    --m3-on-surface: #f0f2fe;
+    --m3-surface-variant: #1a1832;
+    --m3-on-surface-variant: #a0a5ca;
 
-    --m3-surface-container: #211f26;
-    --m3-surface-container-high: #2b2930;
-    --m3-outline: #938ef4;
+    --m3-surface-container: #121124;
+    --m3-surface-container-high: #1a1836;
+    --m3-outline: #383468;
 
     color: var(--m3-on-surface);
     background-color: var(--m3-surface);
@@ -102,25 +102,48 @@ body {
 }
 
 .dark {
-  --m3-primary: #d0bcff;
-  --m3-on-primary: #381e72;
-  --m3-primary-container: #4f378b;
-  --m3-on-primary-container: #eaddff;
+  --m3-primary: #00f0ff;
+  --m3-on-primary: #050510;
+  --m3-primary-container: #00364a;
+  --m3-on-primary-container: #b3f5ff;
 
-  --m3-secondary: #ccc2dc;
-  --m3-on-secondary: #332d41;
-  --m3-secondary-container: #4a4458;
-  --m3-on-secondary-container: #e8def8;
+  --m3-secondary: #ff2a85;
+  --m3-on-secondary: #ffffff;
+  --m3-secondary-container: #4a0024;
+  --m3-on-secondary-container: #ffb8d9;
 
-  --m3-surface: #141218;
-  --m3-on-surface: #e6e1e9;
-  --m3-surface-variant: #49454f;
-  --m3-on-surface-variant: #cac4d0;
+  --m3-surface: #0a0915;
+  --m3-on-surface: #f0f2fe;
+  --m3-surface-variant: #1a1832;
+  --m3-on-surface-variant: #a0a5ca;
 
-  --m3-surface-container: #211f26;
-  --m3-surface-container-high: #2b2930;
-  --m3-outline: #938ef4;
+  --m3-surface-container: #121124;
+  --m3-surface-container-high: #1a1836;
+  --m3-outline: #383468;
 
   color: var(--m3-on-surface);
   background-color: var(--m3-surface);
+}
+
+/* Cyber / Synthwave Custom Utilities */
+.neon-glow-cyan {
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.35);
+}
+
+.neon-glow-pink {
+  box-shadow: 0 0 12px rgba(255, 42, 133, 0.35);
+}
+
+.neon-border-cyan {
+  border-color: rgba(0, 240, 255, 0.4);
+}
+
+.neon-border-pink {
+  border-color: rgba(255, 42, 133, 0.4);
+}
+
+.cyber-grid-bg {
+  background-image: linear-gradient(to right, rgba(56, 52, 104, 0.15) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(56, 52, 104, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
 }

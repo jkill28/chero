@@ -101,7 +101,6 @@ function App() {
     if (!selectedTransaction) return;
     try {
       if (mode === 'single') {
-        // Exclude this date from original
         const excluded = selectedTransaction.excludedDates ? selectedTransaction.excludedDates.split(',') : [];
         const dateStr = format(selectedDate, 'yyyy-MM-dd');
         if (!excluded.includes(dateStr)) {
@@ -111,7 +110,6 @@ function App() {
           ...selectedTransaction,
           excludedDates: excluded.join(',')
         });
-        // Create new one-off
         await axios.post(`${API_BASE}/transactions`, {
           ...data,
           id: undefined,
@@ -121,22 +119,18 @@ function App() {
           excludedDates: null
         });
       } else {
-        // Future mode
         const originalDateStr = format(new Date(selectedTransaction.date), 'yyyy-MM-dd');
         const selectedDateStr = format(selectedDate, 'yyyy-MM-dd');
 
         if (originalDateStr === selectedDateStr) {
-          // Just update the original
           await axios.put(`${API_BASE}/transactions/${selectedTransaction.id}`, data);
         } else {
-          // Split: update original end date
           const prevDay = new Date(selectedDate);
           prevDay.setDate(prevDay.getDate() - 1);
           await axios.put(`${API_BASE}/transactions/${selectedTransaction.id}`, {
             ...selectedTransaction,
             recurrenceEndDate: prevDay.toISOString()
           });
-          // Create new series
           await axios.post(`${API_BASE}/transactions`, {
             ...data,
             id: undefined
@@ -223,17 +217,18 @@ function App() {
       console.error('Restore failed', error);
       alert(t(settings.language, 'restoreError'));
     }
-    // Reset input
     e.target.value = '';
   };
 
   return (
-    <div className="min-h-screen bg-m3-surface text-m3-on-surface p-3 sm:p-8 transition-colors">
+    <div className="min-h-screen bg-m3-surface text-m3-on-surface p-3 sm:p-8 transition-colors dark:cyber-grid-bg">
       <div className="max-w-6xl mx-auto">
         <header className="flex flex-row justify-between items-center mb-2 sm:mb-10 gap-2">
           <div className="flex flex-row items-baseline gap-2">
-            <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-m3-primary leading-tight">{t(settings.language, 'title')}</h1>
-            <p className="text-[10px] sm:text-sm text-m3-on-surface-variant font-medium opacity-80 whitespace-nowrap">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-wider uppercase text-m3-primary leading-tight dark:drop-shadow-[0_0_8px_rgba(0,240,255,0.6)]">
+              {t(settings.language, 'title')}
+            </h1>
+            <p className="text-[10px] sm:text-sm text-m3-on-surface-variant font-medium opacity-90 whitespace-nowrap">
               <span className="hidden sm:inline">{formattedDate} </span>
               (<span className="sm:hidden">{formatCurrency(todayBalance, settings.currency, settings.language, true)}</span>
               <span className="hidden sm:inline">{formatCurrency(todayBalance, settings.currency, settings.language)}</span>)
@@ -246,7 +241,7 @@ function App() {
                 setSelectedDate(new Date());
                 setIsModalOpen(true);
               }}
-              className="bg-m3-primary-container text-m3-on-primary-container p-2.5 sm:px-6 sm:py-4 rounded-m3-lg hover:shadow-lg flex items-center text-sm sm:text-base font-semibold transition-all"
+              className="bg-m3-primary-container text-m3-on-primary-container p-2.5 sm:px-6 sm:py-4 rounded-m3-lg hover:shadow-lg dark:hover:neon-glow-cyan flex items-center text-sm sm:text-base font-bold transition-all border border-m3-outline/20"
               title={t(settings.language, 'addTransaction')}
             >
               <Plus size={20} className="sm:mr-2" />
@@ -255,7 +250,7 @@ function App() {
             <button
               onClick={() => setIsSettingsOpen(true)}
               title={t(settings.language, 'settings')}
-              className="p-2.5 sm:p-4 bg-m3-surface-container-high text-m3-on-surface rounded-m3-lg border border-m3-outline/20 hover:bg-m3-surface-container transition-colors shadow-sm"
+              className="p-2.5 sm:p-4 bg-m3-surface-container-high text-m3-on-surface rounded-m3-lg border border-m3-outline/20 hover:bg-m3-surface-container dark:hover:neon-glow-pink transition-all shadow-sm"
             >
               <SettingsIcon size={20} className="sm:w-6 sm:h-6" />
             </button>
@@ -275,10 +270,10 @@ function App() {
             language={settings.language}
           />
 
-          {/* Mobile Operations List - Redesigned for M3 */}
-          <div className="mt-4 sm:hidden bg-m3-surface-container rounded-m3-xl shadow-md overflow-hidden">
+          {/* Mobile Operations List - Redesigned for M3 & Synthwave */}
+          <div className="mt-4 sm:hidden bg-m3-surface-container rounded-m3-xl shadow-md overflow-hidden border border-m3-outline/20">
             <div className="px-5 py-3 border-b border-m3-outline/10 flex justify-between items-center">
-              <h3 className="text-base font-bold text-m3-on-surface capitalize">
+              <h3 className="text-base font-bold text-m3-on-surface capitalize tracking-wide">
                 {format(selectedDate, 'EEEE do MMMM', { locale: settings.language === 'en' ? enUS : fr })}
               </h3>
             </div>
@@ -298,7 +293,7 @@ function App() {
                     </div>
                     <span className={cn(
                       "text-sm font-bold",
-                      occ.transaction.amount >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600 dark:text-rose-400"
+                      occ.transaction.amount >= 0 ? "text-emerald-600 dark:text-[#00ff9d]" : "text-rose-600 dark:text-[#ff2a85]"
                     )}>
                       {occ.transaction.amount > 0 ? '+' : ''}{formatCurrency(occ.transaction.amount, settings.currency, settings.language, true)}
                     </span>
