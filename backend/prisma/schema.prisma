@@ -29,4 +29,5 @@ model Settings {
   currency     String @default("AUD")
   initialBalance Float @default(0)
   language     String @default("fr")
+  themeMode    String @default("system")
 }

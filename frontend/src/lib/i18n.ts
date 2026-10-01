@@ -34,6 +34,10 @@ export const translations = {
     language: 'Langue',
     french: 'Français',
     english: 'English',
+    themeMode: 'Thème',
+    themeSystem: 'Système',
+    themeLight: 'Clair',
+    themeDark: 'Sombre',
     weekDays: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
     intervalLabel: {
       WEEKLY: 'semaines',
@@ -83,6 +87,10 @@ export const translations = {
     language: 'Language',
     french: 'Français',
     english: 'English',
+    themeMode: 'Theme',
+    themeSystem: 'System',
+    themeLight: 'Light',
+    themeDark: 'Dark',
     weekDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     intervalLabel: {
       WEEKLY: 'weeks',

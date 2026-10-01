@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Settings } from '../types';
+import type { Settings, ThemeMode } from '../types';
 import { t } from '../lib/i18n';
 
 interface SettingsModalProps {
@@ -37,6 +37,19 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
               >
                 <option value="fr">{t(settings.language, 'french')}</option>
                 <option value="en">{t(settings.language, 'english')}</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="themeMode" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(settings.language, 'themeMode')}</label>
+              <select
+                id="themeMode"
+                value={settings.themeMode || 'system'}
+                onChange={(e) => setSettings({ ...settings, themeMode: e.target.value as ThemeMode })}
+                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+              >
+                <option value="system">{t(settings.language, 'themeSystem')}</option>
+                <option value="light">{t(settings.language, 'themeLight')}</option>
+                <option value="dark">{t(settings.language, 'themeDark')}</option>
               </select>
             </div>
             <div>
