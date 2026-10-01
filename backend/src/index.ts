@@ -96,7 +96,7 @@ app.get('/api/settings', async (req, res) => {
     let settings = await prisma.settings.findFirst();
     if (!settings) {
       settings = await prisma.settings.create({
-        data: { id: 1, currency: 'AUD', initialBalance: 0, language: 'fr' },
+        data: { id: 1, currency: 'AUD', initialBalance: 0, language: 'fr', themeMode: 'system' },
       });
     }
     res.json(settings);
@@ -106,12 +106,12 @@ app.get('/api/settings', async (req, res) => {
 });
 
 app.post('/api/settings', async (req, res) => {
-  const { currency, initialBalance, language } = req.body;
+  const { currency, initialBalance, language, themeMode } = req.body;
   try {
     const settings = await prisma.settings.upsert({
       where: { id: 1 },
-      update: { currency, initialBalance: parseFloat(initialBalance), language: language || 'fr' },
-      create: { id: 1, currency, initialBalance: parseFloat(initialBalance), language: language || 'fr' },
+      update: { currency, initialBalance: parseFloat(initialBalance), language: language || 'fr', themeMode: themeMode || 'system' },
+      create: { id: 1, currency, initialBalance: parseFloat(initialBalance), language: language || 'fr', themeMode: themeMode || 'system' },
     });
     res.json(settings);
   } catch (error) {

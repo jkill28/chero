@@ -16,7 +16,7 @@ const API_BASE = '/api';
 function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [settings, setSettings] = useState<Settings>({ currency: 'AUD', initialBalance: 0, language: 'fr' });
+  const [settings, setSettings] = useState<Settings>({ currency: 'AUD', initialBalance: 0, language: 'fr', themeMode: 'system' });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -44,6 +44,37 @@ function App() {
     fetchTransactions();
     fetchSettings();
   }, [fetchTransactions, fetchSettings]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const updateTheme = () => {
+      root.classList.remove('dark', 'light');
+      if (settings.themeMode === 'dark') {
+        root.classList.add('dark');
+      } else if (settings.themeMode === 'light') {
+        root.classList.add('light');
+      } else {
+        // System preference
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+          root.classList.add('dark');
+        } else {
+          root.classList.add('light');
+        }
+      }
+    };
+
+    updateTheme();
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleChange = () => {
+      if (!settings.themeMode || settings.themeMode === 'system') {
+        updateTheme();
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleChange);
+    return () => mediaQuery.removeEventListener('change', handleChange);
+  }, [settings.themeMode]);
 
   const todayBalance = useMemo(() => {
     const today = startOfDay(new Date());

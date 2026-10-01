@@ -1,4 +1,5 @@
 export type Recurrence = 'NONE' | 'WEEKLY' | 'MONTHLY';
+export type ThemeMode = 'system' | 'light' | 'dark';
 
 export interface Transaction {
   id: number;
@@ -21,4 +22,5 @@ export interface Settings {
   currency: string;
   initialBalance: number;
   language: string;
+  themeMode?: ThemeMode;
 }
