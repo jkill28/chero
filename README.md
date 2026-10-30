@@ -1,7 +1,10 @@
 # Chéro - Budget in a Calendar
 
-
 A web application for personal finance management with a calendar view.
+
+<p align="center">
+  <img src="docs/preview.png" alt="Chéro Preview" width="450" />
+</p>
 
 ## Features
 
