@@ -12,6 +12,7 @@ export const translations = {
     adjustment: 'Ajustement',
     amount: 'Montant',
     description: 'Description',
+    descriptionPlaceholder: 'ex. Loyer, Salaire, Courses...',
     date: 'Date',
     recurrence: 'Récurrence',
     none: 'Aucune',
@@ -33,7 +34,7 @@ export const translations = {
     initialBalance: 'Solde initial',
     language: 'Langue',
     french: 'Français',
-    english: 'English',
+    english: 'Anglais',
     weekDays: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
     intervalLabel: {
       WEEKLY: 'semaines',
@@ -46,7 +47,23 @@ export const translations = {
     backup: 'Sauvegarder',
     restore: 'Restaurer',
     restoreSuccess: 'Sauvegarde restaurée avec succès',
-    restoreError: 'Échec de la restauration de la sauvegarde'
+    restoreError: 'Échec de la restauration de la sauvegarde',
+    today: "Aujourd'hui",
+    addOnThisDay: 'Ajouter ce jour',
+    dailyNet: 'Net du jour',
+    projectedBalance: 'Solde prévisionnel',
+    currentBalance: 'Solde actuel',
+    theme: 'Thème',
+    system: 'Système',
+    dark: 'Sombre',
+    white: 'Blanc',
+    systemTheme: 'Thème système',
+    darkTheme: 'Thème sombre',
+    whiteTheme: 'Thème blanc',
+    prevMonth: 'Mois précédent',
+    nextMonth: 'Mois suivant',
+    moreTransactions: '+{n} autres',
+    recurring: 'Récurrent'
   },
   en: {
     title: 'Chéro',
@@ -61,6 +78,7 @@ export const translations = {
     adjustment: 'Adjustment',
     amount: 'Amount',
     description: 'Description',
+    descriptionPlaceholder: 'e.g. Rent, Salary, Groceries...',
     date: 'Date',
     recurrence: 'Recurrence',
     none: 'None',
@@ -81,7 +99,7 @@ export const translations = {
     currency: 'Currency',
     initialBalance: 'Initial Balance',
     language: 'Language',
-    french: 'Français',
+    french: 'French',
     english: 'English',
     weekDays: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     intervalLabel: {
@@ -95,12 +113,29 @@ export const translations = {
     backup: 'Backup',
     restore: 'Restore',
     restoreSuccess: 'Backup restored successfully',
-    restoreError: 'Failed to restore backup'
+    restoreError: 'Failed to restore backup',
+    today: 'Today',
+    addOnThisDay: 'Add on this day',
+    dailyNet: 'Daily net',
+    projectedBalance: 'Projected balance',
+    currentBalance: 'Current balance',
+    theme: 'Theme',
+    system: 'System',
+    dark: 'Dark',
+    white: 'White',
+    systemTheme: 'System theme',
+    darkTheme: 'Dark theme',
+    whiteTheme: 'White theme',
+    prevMonth: 'Previous month',
+    nextMonth: 'Next month',
+    moreTransactions: '+{n} more',
+    recurring: 'Recurring'
   }
 };
 
 export type Language = 'fr' | 'en';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const t = (lang: string, key: keyof typeof translations.fr): any => {
   const l = (lang === 'en' ? 'en' : 'fr') as Language;
   return translations[l][key] || translations.fr[key];

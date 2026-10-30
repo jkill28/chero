@@ -64,6 +64,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
   useEffect(() => {
     if (isOpen && initialValues) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAmount(initialValues.amount);
       setType(initialValues.type);
       setDescription(initialValues.description);
@@ -99,26 +100,28 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-m3-on-surface/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-m3-surface-container rounded-m3-xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
-        <div className="flex justify-between items-center px-6 py-6 border-b border-m3-outline/10">
-          <h2 className="text-2xl font-bold text-m3-on-surface">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+      <div className="bg-m3-surface-container rounded-3xl border border-m3-card-border w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+        <div className="flex justify-between items-center px-6 py-5 border-b border-m3-card-border">
+          <h2 className="text-xl font-bold text-m3-on-surface">
             {transaction ? t(language, 'editTransaction') : t(language, 'newTransaction')}
           </h2>
-          <button onClick={onClose} className="p-2 text-m3-on-surface-variant hover:bg-m3-on-surface/10 rounded-full transition-colors">
-            <X size={24} />
+          <button onClick={onClose} className="p-2 text-m3-on-surface-variant hover:text-m3-on-surface hover:bg-m3-on-surface/10 rounded-xl transition-colors">
+            <X size={20} />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          <div className="flex p-1.5 bg-m3-surface-container-high rounded-m3-lg gap-1">
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {/* Segmented type switcher */}
+          <div className="flex p-1 bg-m3-surface-container-high rounded-xl border border-m3-card-border gap-1">
             <button
               type="button"
               onClick={() => setType('credit')}
               className={cn(
-                "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
+                "flex-1 py-2 text-xs font-bold rounded-lg transition-all border",
                 type === 'credit'
-                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
-                  : 'text-m3-on-surface-variant hover:text-m3-on-surface'
+                  ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 shadow-xs'
+                  : 'text-m3-on-surface-variant hover:text-m3-on-surface border-transparent'
               )}
             >
               {t(language, 'credit')}
@@ -127,10 +130,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               type="button"
               onClick={() => setType('debit')}
               className={cn(
-                "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
+                "flex-1 py-2 text-xs font-bold rounded-lg transition-all border",
                 type === 'debit'
-                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
-                  : 'text-m3-on-surface-variant hover:text-m3-on-surface'
+                  ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-500/30 shadow-xs'
+                  : 'text-m3-on-surface-variant hover:text-m3-on-surface border-transparent'
               )}
             >
               {t(language, 'debit')}
@@ -139,19 +142,19 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
               type="button"
               onClick={() => setType('adjustment')}
               className={cn(
-                "flex-1 py-2.5 text-sm font-bold rounded-m3-md transition-all",
+                "flex-1 py-2 text-xs font-bold rounded-lg transition-all border",
                 type === 'adjustment'
-                  ? 'bg-m3-primary text-m3-on-primary shadow-sm'
-                  : 'text-m3-on-surface-variant hover:text-m3-on-surface'
+                  ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 shadow-xs'
+                  : 'text-m3-on-surface-variant hover:text-m3-on-surface border-transparent'
               )}
             >
               {t(language, 'adjustment')}
             </button>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             <div>
-              <label htmlFor="tx-amount" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'amount')}</label>
+              <label htmlFor="tx-amount" className="block text-xs font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">{t(language, 'amount')}</label>
               <input
                 id="tx-amount"
                 type="number"
@@ -160,54 +163,55 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 placeholder="0.00"
-                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 text-xl font-semibold transition-all"
+                className="block w-full rounded-xl border border-m3-card-border focus:border-m3-primary focus:ring-1 focus:ring-m3-primary bg-m3-surface text-m3-on-surface px-4 py-3 text-lg font-bold transition-all outline-hidden"
                 required
               />
             </div>
             <div>
-              <label htmlFor="tx-description" className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'description')}</label>
+              <label htmlFor="tx-description" className="block text-xs font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">{t(language, 'description')}</label>
               <input
                 id="tx-description"
                 type="text"
                 name="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                placeholder={t(language, 'descriptionPlaceholder')}
+                className="block w-full rounded-xl border border-m3-card-border focus:border-m3-primary focus:ring-1 focus:ring-m3-primary bg-m3-surface text-m3-on-surface px-4 py-2.5 text-sm font-medium transition-all outline-hidden"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'date')}</label>
+              <label className="block text-xs font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">{t(language, 'date')}</label>
               <input
                 type="date"
                 name="date"
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                className="block w-full rounded-xl border border-m3-card-border focus:border-m3-primary focus:ring-1 focus:ring-m3-primary bg-m3-surface text-m3-on-surface px-4 py-2.5 text-sm font-medium transition-all outline-hidden"
                 required
               />
             </div>
           </div>
 
           {transaction && transaction.recurrence !== 'NONE' && (
-            <div className="p-4 bg-m3-primary-container/30 rounded-m3-lg space-y-3">
-              <label className="block text-sm font-bold text-m3-on-primary-container uppercase tracking-wider">{t(language, 'editMode')}</label>
-              <div className="space-y-2">
-                <label className="flex items-center text-sm font-semibold text-m3-on-surface cursor-pointer">
+            <div className="p-3.5 bg-m3-surface-container-high rounded-xl border border-m3-card-border space-y-2">
+              <label className="block text-xs font-bold text-m3-on-surface uppercase tracking-wider">{t(language, 'editMode')}</label>
+              <div className="space-y-1.5">
+                <label className="flex items-center text-xs font-semibold text-m3-on-surface cursor-pointer">
                   <input
                     type="radio"
                     checked={editMode === 'single'}
                     onChange={() => setEditMode('single')}
-                    className="mr-3 w-4 h-4 text-m3-primary border-m3-outline focus:ring-m3-primary"
+                    className="mr-2.5 w-4 h-4 text-m3-primary focus:ring-m3-primary"
                   />
                   {t(language, 'onlyThis')}
                 </label>
-                <label className="flex items-center text-sm font-semibold text-m3-on-surface cursor-pointer">
+                <label className="flex items-center text-xs font-semibold text-m3-on-surface cursor-pointer">
                   <input
                     type="radio"
                     checked={editMode === 'future'}
                     onChange={() => setEditMode('future')}
-                    className="mr-3 w-4 h-4 text-m3-primary border-m3-outline focus:ring-m3-primary"
+                    className="mr-2.5 w-4 h-4 text-m3-primary focus:ring-m3-primary"
                   />
                   {t(language, 'thisAndFollowing')}
                 </label>
@@ -215,13 +219,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'recurrence')}</label>
+              <label className="block text-xs font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">{t(language, 'recurrence')}</label>
               <select
                 value={recurrence}
                 onChange={(e) => setRecurrence(e.target.value as Recurrence)}
-                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                className="block w-full rounded-xl border border-m3-card-border focus:border-m3-primary focus:ring-1 focus:ring-m3-primary bg-m3-surface text-m3-on-surface px-3 py-2.5 text-xs font-medium transition-all outline-hidden"
               >
                 <option value="NONE">{t(language, 'none')}</option>
                 <option value="WEEKLY">{t(language, 'weekly')}</option>
@@ -230,15 +234,15 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
             </div>
             {recurrence !== 'NONE' && (
               <div>
-                <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">
+                <label className="block text-xs font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">
                   {recurrence === 'WEEKLY' ? t(language, 'everyXWeeks').replace('{n}', '') : t(language, 'everyXMonths').replace('{n}', '')}
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {recurrence === 'WEEKLY' ? (
                     <select
                       value={recurrenceInterval}
                       onChange={(e) => setRecurrenceInterval(parseInt(e.target.value))}
-                      className="flex-1 rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                      className="flex-1 rounded-xl border border-m3-card-border focus:border-m3-primary focus:ring-1 focus:ring-m3-primary bg-m3-surface text-m3-on-surface px-3 py-2.5 text-xs font-medium transition-all outline-hidden"
                     >
                       <option value={1}>1</option>
                       <option value={2}>2</option>
@@ -250,10 +254,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                       min="1"
                       value={recurrenceInterval}
                       onChange={(e) => setRecurrenceInterval(parseInt(e.target.value))}
-                      className="flex-1 rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                      className="flex-1 rounded-xl border border-m3-card-border focus:border-m3-primary focus:ring-1 focus:ring-m3-primary bg-m3-surface text-m3-on-surface px-3 py-2.5 text-xs font-medium transition-all outline-hidden"
                     />
                   )}
-                  <span className="text-xs font-bold text-m3-on-surface-variant uppercase whitespace-nowrap">
+                  <span className="text-[10px] font-bold text-m3-on-surface-variant uppercase whitespace-nowrap">
                     {t(language, 'intervalLabel')[recurrence as 'WEEKLY' | 'MONTHLY']}
                   </span>
                 </div>
@@ -263,55 +267,55 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
           {recurrence !== 'NONE' && (
             <div>
-              <label className="block text-sm font-bold text-m3-on-surface-variant mb-1.5 ml-1 uppercase tracking-wider">{t(language, 'endDate')}</label>
+              <label className="block text-xs font-bold text-m3-on-surface-variant mb-1 uppercase tracking-wider">{t(language, 'endDate')}</label>
               <input
                 type="date"
                 value={recurrenceEndDate}
                 onChange={(e) => setRecurrenceEndDate(e.target.value)}
-                className="block w-full rounded-m3-lg border-2 border-m3-outline/20 focus:border-m3-primary focus:ring-0 bg-m3-surface text-m3-on-surface p-4 font-medium transition-all"
+                className="block w-full rounded-xl border border-m3-card-border focus:border-m3-primary focus:ring-1 focus:ring-m3-primary bg-m3-surface text-m3-on-surface px-3 py-2.5 text-xs font-medium transition-all outline-hidden"
               />
             </div>
           )}
 
-          <div className="flex flex-col gap-4 pt-4">
-            <div className="flex justify-end gap-3">
+          <div className="flex flex-col gap-3 pt-2">
+            <div className="flex justify-end gap-2.5">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-6 py-3.5 text-m3-primary font-bold hover:bg-m3-primary/5 rounded-full transition-colors"
+                className="px-4 py-2.5 text-xs text-m3-on-surface-variant hover:text-m3-on-surface font-semibold hover:bg-m3-on-surface/5 rounded-xl transition-colors"
               >
                 {t(language, 'cancel')}
               </button>
               <button
                 type="submit"
-                className="bg-m3-primary text-m3-on-primary px-8 py-3.5 rounded-full font-bold shadow-md hover:shadow-lg transition-all"
+                className="bg-m3-primary text-m3-on-primary px-6 py-2.5 rounded-xl text-xs font-bold shadow-md hover:brightness-110 transition-all"
               >
                 {t(language, 'save')}
               </button>
             </div>
 
             {transaction && (
-              <div className="flex flex-col gap-2 pt-4 border-t border-m3-outline/10">
+              <div className="flex flex-col gap-1.5 pt-3 border-t border-m3-card-border">
                 {transaction.recurrence !== 'NONE' ? (
                   <>
                     <button
                       type="button"
                       onClick={() => onDeleteComplex?.(transaction.id, 'single')}
-                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
+                      className="text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 p-2 text-xs font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteThis')}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDeleteComplex?.(transaction.id, 'future')}
-                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
+                      className="text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 p-2 text-xs font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteFromHere')}
                     </button>
                     <button
                       type="button"
                       onClick={() => onDelete?.(transaction.id)}
-                      className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-left rounded-lg transition-colors"
+                      className="text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 p-2 text-xs font-bold text-left rounded-lg transition-colors"
                     >
                       {t(language, 'deleteAll')}
                     </button>
@@ -320,7 +324,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                   <button
                     type="button"
                     onClick={() => onDelete?.(transaction.id)}
-                    className="text-rose-600 hover:bg-rose-50 p-2 text-sm font-bold text-center rounded-lg transition-colors"
+                    className="text-rose-600 dark:text-rose-400 hover:bg-rose-500/10 p-2 text-xs font-bold text-center rounded-lg transition-colors"
                   >
                     {t(language, 'delete')}
                   </button>
