@@ -1,6 +1,6 @@
 export type Recurrence = 'NONE' | 'WEEKLY' | 'MONTHLY';
 export type ThemeMode = 'system' | 'dark' | 'white';
-export type SyncStatus = 'synced' | 'offline' | 'syncing' | 'local-only' | 'error';
+export type SyncStatus = 'synced' | 'offline' | 'syncing' | 'local-only' | 'error' | 'auth-error';
 
 export interface Transaction {
   id: number;

@@ -18,6 +18,7 @@ import {
   CloudOff,
   RefreshCw,
   HardDrive,
+  ShieldAlert,
 } from 'lucide-react';
 import { t } from './lib/i18n';
 import { cn, formatCurrency } from './lib/utils';
@@ -49,6 +50,7 @@ function App() {
   const [pendingCount, setPendingCount] = useState<number>(() => getOutbox().length);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [showExitToast, setShowExitToast] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
@@ -104,6 +106,8 @@ function App() {
       setSyncStatus('local-only');
     } else if (result.synced) {
       setSyncStatus('synced');
+    } else if (result.authError) {
+      setSyncStatus('auth-error');
     } else {
       setSyncStatus('offline');
     }
@@ -138,6 +142,34 @@ function App() {
     });
     return cleanup;
   }, []);
+
+  // Register Android back button / gesture handler for closing modals or double-back to exit
+  useEffect(() => {
+    let toastTimer: ReturnType<typeof setTimeout> | null = null;
+    const win = window as Window & { __cheroHandleBack?: () => string };
+
+    win.__cheroHandleBack = () => {
+      if (isModalOpen) {
+        setIsModalOpen(false);
+        return 'MODAL_CLOSED';
+      }
+      if (isSettingsOpen) {
+        setIsSettingsOpen(false);
+        return 'MODAL_CLOSED';
+      }
+      setShowExitToast(true);
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        setShowExitToast(false);
+      }, 2000);
+      return 'TOAST_SHOWN';
+    };
+
+    return () => {
+      delete win.__cheroHandleBack;
+      if (toastTimer) clearTimeout(toastTimer);
+    };
+  }, [isModalOpen, isSettingsOpen]);
 
   // Ensure daily notification schedule matches saved settings on app launch
   useEffect(() => {
@@ -364,6 +396,25 @@ function App() {
           </h1>
         </header>
 
+        {/* Cloudflare Service Token Expired / Auth Error Banner */}
+        {syncStatus === 'auth-error' && (
+          <div className="bg-rose-500/15 border border-rose-500/30 text-rose-700 dark:text-rose-300 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs animate-in fade-in duration-200">
+            <div className="flex items-start gap-3">
+              <ShieldAlert size={20} className="text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+              <p className="text-xs sm:text-sm font-medium">
+                {t(settings.language, 'cfTokenExpiredBanner')}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsSettingsOpen(true)}
+              className="self-start sm:self-auto shrink-0 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-colors shadow-2xs"
+            >
+              {t(settings.language, 'updateTokenInSettings')}
+            </button>
+          </div>
+        )}
+
         {/* 1. TOP: Current Balance Card with Slim Border */}
         <div className="bg-m3-surface-container border border-m3-card-border rounded-3xl p-5 sm:p-6 shadow-sm transition-all">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -375,9 +426,11 @@ function App() {
                 <span
                   className={cn(
                     "w-2 h-2 rounded-full",
-                    syncStatus === 'offline' || syncStatus === 'error'
-                      ? "bg-amber-500"
-                      : "bg-emerald-500 animate-pulse"
+                    syncStatus === 'auth-error'
+                      ? "bg-rose-500 animate-pulse"
+                      : syncStatus === 'offline' || syncStatus === 'error'
+                        ? "bg-amber-500"
+                        : "bg-emerald-500 animate-pulse"
                   )}
                 />
                 <span className="text-xs text-m3-on-surface-variant font-medium hidden sm:inline">
@@ -387,8 +440,12 @@ function App() {
                 {/* Sync / Offline Status Pill */}
                 <button
                   type="button"
-                  onClick={() => performSync()}
-                  title={t(settings.language, 'syncNow')}
+                  onClick={() => (syncStatus === 'auth-error' ? setIsSettingsOpen(true) : performSync())}
+                  title={
+                    syncStatus === 'auth-error'
+                      ? t(settings.language, 'updateTokenInSettings')
+                      : t(settings.language, 'syncNow')
+                  }
                   className={cn(
                     "inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border transition-colors",
                     syncStatus === 'synced' &&
@@ -398,19 +455,23 @@ function App() {
                     syncStatus === 'local-only' &&
                       "bg-m3-surface-container-high text-m3-on-surface-variant border-m3-card-border",
                     (syncStatus === 'offline' || syncStatus === 'error') &&
-                      "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                      "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30",
+                    syncStatus === 'auth-error' &&
+                      "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/30"
                   )}
                 >
                   {syncStatus === 'synced' && <Cloud size={12} />}
                   {syncStatus === 'syncing' && <RefreshCw size={12} className="animate-spin" />}
                   {syncStatus === 'local-only' && <HardDrive size={12} />}
                   {(syncStatus === 'offline' || syncStatus === 'error') && <CloudOff size={12} />}
+                  {syncStatus === 'auth-error' && <ShieldAlert size={12} />}
                   <span>
                     {syncStatus === 'synced' && t(settings.language, 'syncStatusSynced')}
                     {syncStatus === 'syncing' && t(settings.language, 'syncStatusSyncing')}
                     {syncStatus === 'local-only' && t(settings.language, 'syncStatusLocal')}
                     {(syncStatus === 'offline' || syncStatus === 'error') &&
                       t(settings.language, 'syncStatusOffline')}
+                    {syncStatus === 'auth-error' && t(settings.language, 'syncStatusAuthError')}
                     {pendingCount > 0 &&
                       ` (${t(settings.language, 'pendingChanges').replace('{n}', String(pendingCount))})`}
                   </span>
@@ -658,6 +719,12 @@ function App() {
         themeMode={themeMode}
         onThemeModeChange={setThemeMode}
       />
+
+      {showExitToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-m3-on-surface text-m3-surface px-4 py-2.5 rounded-full text-xs font-semibold shadow-lg animate-in fade-in duration-150 pointer-events-none">
+          {t(settings.language, 'pressBackAgainToExit')}
+        </div>
+      )}
     </div>
   );
 }

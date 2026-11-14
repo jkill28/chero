@@ -206,13 +206,47 @@ function enqueueMutation(mutation: PendingMutation): void {
   setOutbox(outbox);
 }
 
-export async function flushOutbox(): Promise<boolean> {
+export class CloudflareAuthError extends Error {
+  constructor(message = 'Cloudflare Access authentication failed or token expired') {
+    super(message);
+    this.name = 'CloudflareAuthError';
+  }
+}
+
+function isAuthError(error: unknown): boolean {
+  if (error instanceof CloudflareAuthError) return true;
+  if (axios.isAxiosError(error)) {
+    const status = error.response?.status;
+    if (status === 401 || status === 403) return true;
+    const data = error.response?.data;
+    if (
+      typeof data === 'string' &&
+      (data.includes('cloudflareaccess') ||
+        data.includes('CF-Access') ||
+        data.includes('<!DOCTYPE') ||
+        data.includes('<html'))
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function assertNotHtmlAuthRedirect(data: unknown): void {
+  if (typeof data === 'string') {
+    throw new CloudflareAuthError('Received HTML login page instead of JSON API response');
+  }
+}
+
+export async function flushOutbox(): Promise<{ flushed: boolean; authError: boolean }> {
   const apiBase = getEffectiveApiBase();
-  if (!apiBase) return true;
-  if (typeof navigator !== 'undefined' && !navigator.onLine) return false;
+  if (!apiBase) return { flushed: true, authError: false };
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return { flushed: false, authError: false };
+  }
 
   const outbox = getOutbox();
-  if (outbox.length === 0) return true;
+  if (outbox.length === 0) return { flushed: true, authError: false };
 
   const reqConfig = getRequestConfig();
   const idMap = new Map<number, number>();
@@ -224,31 +258,37 @@ export async function flushOutbox(): Promise<boolean> {
       if (item.type === 'CREATE_TX') {
         const payload = { ...item.data, id: undefined };
         const res = await axios.post(`${apiBase}/transactions`, payload, reqConfig);
+        assertNotHtmlAuthRedirect(res.data);
         if (res.data && typeof res.data.id === 'number') {
           idMap.set(item.tempId, res.data.id);
+        } else {
+          throw new CloudflareAuthError('Unexpected response format on transaction create');
         }
       } else if (item.type === 'UPDATE_TX') {
         const targetId = idMap.get(item.id) ?? item.id;
-        await axios.put(
+        const res = await axios.put(
           `${apiBase}/transactions/${targetId}`,
           { ...item.data, id: targetId },
           reqConfig
         );
+        assertNotHtmlAuthRedirect(res.data);
       } else if (item.type === 'DELETE_TX') {
         const targetId = idMap.get(item.id) ?? item.id;
-        await axios.delete(`${apiBase}/transactions/${targetId}`, reqConfig);
+        const res = await axios.delete(`${apiBase}/transactions/${targetId}`, reqConfig);
+        assertNotHtmlAuthRedirect(res.data);
       } else if (item.type === 'SAVE_SETTINGS') {
-        await axios.post(`${apiBase}/settings`, item.data, reqConfig);
+        const res = await axios.post(`${apiBase}/settings`, item.data, reqConfig);
+        assertNotHtmlAuthRedirect(res.data);
       }
       remaining.shift();
       setOutbox(remaining);
     } catch (error) {
       console.warn('Outbox flush paused due to error:', error);
-      return false;
+      return { flushed: false, authError: isAuthError(error) };
     }
   }
 
-  return true;
+  return { flushed: true, authError: false };
 }
 
 export async function syncWithServer(): Promise<{
@@ -256,6 +296,7 @@ export async function syncWithServer(): Promise<{
   settings: Settings;
   synced: boolean;
   isLocalOnly: boolean;
+  authError: boolean;
 }> {
   const apiBase = getEffectiveApiBase();
   if (!apiBase) {
@@ -264,6 +305,7 @@ export async function syncWithServer(): Promise<{
       settings: getLocalSettings(),
       synced: false,
       isLocalOnly: true,
+      authError: false,
     };
   }
 
@@ -273,17 +315,19 @@ export async function syncWithServer(): Promise<{
       settings: getLocalSettings(),
       synced: false,
       isLocalOnly: false,
+      authError: false,
     };
   }
 
   try {
-    const flushed = await flushOutbox();
-    if (!flushed) {
+    const outboxResult = await flushOutbox();
+    if (!outboxResult.flushed) {
       return {
         transactions: getLocalTransactions(),
         settings: getLocalSettings(),
         synced: false,
         isLocalOnly: false,
+        authError: outboxResult.authError,
       };
     }
 
@@ -293,8 +337,11 @@ export async function syncWithServer(): Promise<{
       axios.get(`${apiBase}/settings`, reqConfig),
     ]);
 
+    assertNotHtmlAuthRedirect(txRes.data);
+    assertNotHtmlAuthRedirect(settingsRes.data);
+
     if (!Array.isArray(txRes.data)) {
-      throw new Error('Invalid transactions response (possibly intercepted by auth gateway)');
+      throw new CloudflareAuthError('Invalid transactions response (intercepted by auth gateway)');
     }
 
     const localSettings = getLocalSettings();
@@ -316,6 +363,7 @@ export async function syncWithServer(): Promise<{
       settings: mergedSettings,
       synced: true,
       isLocalOnly: false,
+      authError: false,
     };
   } catch (error) {
     console.warn('Remote sync unavailable, using local offline data:', error);
@@ -324,6 +372,7 @@ export async function syncWithServer(): Promise<{
       settings: getLocalSettings(),
       synced: false,
       isLocalOnly: false,
+      authError: isAuthError(error),
     };
   }
 }

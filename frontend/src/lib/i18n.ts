@@ -82,8 +82,12 @@ export const translations = {
     syncStatusSyncing: 'Synchronisation...',
     syncStatusLocal: 'Local (Hors-ligne)',
     syncStatusError: 'Erreur synchro',
+    syncStatusAuthError: 'Jeton CF expiré',
+    cfTokenExpiredBanner: "Échec d'authentification Cloudflare : votre Service Token a expiré ou est invalide. Vos données restent sauvegardées localement.",
+    updateTokenInSettings: 'Mettre à jour dans les Paramètres',
     syncNow: 'Synchroniser',
-    pendingChanges: '{n} en attente'
+    pendingChanges: '{n} en attente',
+    pressBackAgainToExit: 'Appuyez à nouveau sur Retour pour quitter'
   },
   en: {
     title: 'Chéro',
@@ -168,8 +172,12 @@ export const translations = {
     syncStatusSyncing: 'Syncing...',
     syncStatusLocal: 'Local (Offline)',
     syncStatusError: 'Sync Error',
+    syncStatusAuthError: 'CF Token Expired',
+    cfTokenExpiredBanner: 'Cloudflare authentication failed: your Service Token has expired or is invalid. Your data remains safely saved locally.',
+    updateTokenInSettings: 'Update in Settings',
     syncNow: 'Sync Now',
-    pendingChanges: '{n} pending'
+    pendingChanges: '{n} pending',
+    pressBackAgainToExit: 'Press back again to exit'
   }
 };
 
