@@ -96,7 +96,14 @@ app.get('/api/settings', async (req, res) => {
     let settings = await prisma.settings.findFirst();
     if (!settings) {
       settings = await prisma.settings.create({
-        data: { id: 1, currency: 'AUD', initialBalance: 0, language: 'fr' },
+        data: {
+          id: 1,
+          currency: 'AUD',
+          initialBalance: 0,
+          language: 'fr',
+          dailyNotificationEnabled: false,
+          dailyNotificationTime: '20:00',
+        },
       });
     }
     res.json(settings);
@@ -106,12 +113,19 @@ app.get('/api/settings', async (req, res) => {
 });
 
 app.post('/api/settings', async (req, res) => {
-  const { currency, initialBalance, language } = req.body;
+  const { currency, initialBalance, language, dailyNotificationEnabled, dailyNotificationTime } = req.body;
   try {
+    const data = {
+      currency,
+      initialBalance: parseFloat(initialBalance),
+      language: language || 'fr',
+      dailyNotificationEnabled: !!dailyNotificationEnabled,
+      dailyNotificationTime: dailyNotificationTime || '20:00',
+    };
     const settings = await prisma.settings.upsert({
       where: { id: 1 },
-      update: { currency, initialBalance: parseFloat(initialBalance), language: language || 'fr' },
-      create: { id: 1, currency, initialBalance: parseFloat(initialBalance), language: language || 'fr' },
+      update: data,
+      create: { id: 1, ...data },
     });
     res.json(settings);
   } catch (error) {
@@ -168,6 +182,50 @@ app.post('/api/restore', upload.single('backup'), async (req, res) => {
   } catch (error) {
     console.error('Restore error:', error);
     res.status(500).json({ error: 'Failed to restore backup' });
+  }
+});
+
+app.post('/api/restore-json', async (req, res) => {
+  const { transactions, settings } = req.body;
+  if (!Array.isArray(transactions)) {
+    return res.status(400).json({ error: 'Invalid backup payload' });
+  }
+  try {
+    await prisma.$transaction(async (tx) => {
+      await tx.transaction.deleteMany({});
+      for (const item of transactions) {
+        await tx.transaction.create({
+          data: {
+            amount: parseFloat(String(item.amount)),
+            description: String(item.description || ''),
+            date: new Date(item.date),
+            recurrence: item.recurrence || 'NONE',
+            isAdjustment: !!item.isAdjustment,
+            recurrenceInterval: item.recurrenceInterval ? parseInt(String(item.recurrenceInterval)) : 1,
+            recurrenceEndDate: item.recurrenceEndDate ? new Date(item.recurrenceEndDate) : null,
+            excludedDates: item.excludedDates || null,
+          },
+        });
+      }
+      if (settings) {
+        const data = {
+          currency: settings.currency || 'AUD',
+          initialBalance: parseFloat(String(settings.initialBalance ?? 0)),
+          language: settings.language || 'fr',
+          dailyNotificationEnabled: !!settings.dailyNotificationEnabled,
+          dailyNotificationTime: settings.dailyNotificationTime || '20:00',
+        };
+        await tx.settings.upsert({
+          where: { id: 1 },
+          update: data,
+          create: { id: 1, ...data },
+        });
+      }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('JSON Restore error:', error);
+    res.status(500).json({ error: 'Failed to restore JSON backup' });
   }
 });
 

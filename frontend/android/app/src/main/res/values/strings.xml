@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Chéro</string>
+    <string name="title_activity_main">Chéro</string>
+    <string name="package_name">com.chero.app</string>
+    <string name="custom_url_scheme">com.chero.app</string>
+</resources>

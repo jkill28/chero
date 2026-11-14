@@ -1,22 +1,52 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import axios from 'axios';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, startOfDay, isSameDay } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { Calendar } from './components/Calendar';
 import { TransactionModal } from './components/TransactionModal';
 import { SettingsModal } from './components/SettingsModal';
-import type { Transaction, Settings, ThemeMode } from './types';
+import type { Transaction, Settings, ThemeMode, RemoteSyncConfig, SyncStatus } from './types';
 import { getDailyBalances } from './lib/balance';
-import { Settings as SettingsIcon, Plus, Download, Upload, Monitor, Moon, Sun } from 'lucide-react';
+import {
+  Settings as SettingsIcon,
+  Plus,
+  Download,
+  Upload,
+  Monitor,
+  Moon,
+  Sun,
+  Cloud,
+  CloudOff,
+  RefreshCw,
+  HardDrive,
+} from 'lucide-react';
 import { t } from './lib/i18n';
 import { cn, formatCurrency } from './lib/utils';
-
-const API_BASE = '/api';
+import {
+  getLocalTransactions,
+  getLocalSettings,
+  getRemoteSyncConfig,
+  saveRemoteSyncConfig,
+  getOutbox,
+  syncWithServer,
+  createTransactionRepo,
+  updateTransactionRepo,
+  deleteTransactionRepo,
+  saveSettingsRepo,
+  exportBackupRepo,
+  importBackupRepo,
+} from './lib/storage';
+import {
+  syncDailyNotification,
+  registerNotificationTapListener,
+} from './lib/notifications';
 
 function App() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [settings, setSettings] = useState<Settings>({ currency: 'AUD', initialBalance: 0, language: 'fr' });
+  const [transactions, setTransactions] = useState<Transaction[]>(() => getLocalTransactions());
+  const [settings, setSettings] = useState<Settings>(() => getLocalSettings());
+  const [remoteConfig, setRemoteConfig] = useState<RemoteSyncConfig>(() => getRemoteSyncConfig());
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>('local-only');
+  const [pendingCount, setPendingCount] = useState<number>(() => getOutbox().length);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState<Transaction | null>(null);
@@ -38,7 +68,6 @@ function App() {
         root.classList.add('light');
         root.classList.remove('dark');
       } else {
-        // system mode: match prefers-color-scheme
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (prefersDark) {
           root.classList.add('dark');
@@ -64,29 +93,64 @@ function App() {
     return () => mediaQuery.removeEventListener('change', handleSystemChange);
   }, [themeMode]);
 
-  const fetchTransactions = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/transactions`);
-      setTransactions(res.data);
-    } catch (error) {
-      console.error('Failed to fetch transactions', error);
-    }
-  }, []);
+  const performSync = useCallback(async () => {
+    setSyncStatus('syncing');
+    const result = await syncWithServer();
+    setTransactions(result.transactions);
+    setSettings(result.settings);
+    setPendingCount(getOutbox().length);
 
-  const fetchSettings = useCallback(async () => {
-    try {
-      const res = await axios.get(`${API_BASE}/settings`);
-      setSettings(res.data);
-    } catch (error) {
-      console.error('Failed to fetch settings', error);
+    if (result.isLocalOnly) {
+      setSyncStatus('local-only');
+    } else if (result.synced) {
+      setSyncStatus('synced');
+    } else {
+      setSyncStatus('offline');
     }
   }, []);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    fetchTransactions();
-    fetchSettings();
-  }, [fetchTransactions, fetchSettings]);
+    performSync();
+
+    const handleOnline = () => {
+      performSync();
+    };
+    const handleOffline = () => {
+      setSyncStatus((prev) => (prev === 'local-only' ? 'local-only' : 'offline'));
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [performSync]);
+
+  // Register listener for tapping the daily reminder notification on Android
+  useEffect(() => {
+    const cleanup = registerNotificationTapListener(() => {
+      const today = new Date();
+      setCurrentDate(today);
+      setSelectedDate(today);
+      setSelectedTransaction(null);
+      setIsModalOpen(true);
+    });
+    return cleanup;
+  }, []);
+
+  // Ensure daily notification schedule matches saved settings on app launch
+  useEffect(() => {
+    syncDailyNotification(settings).catch(console.error);
+    // Only run on initial mount; subsequent updates are handled in handleSaveSettings
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const refreshFromLocalAndSync = useCallback(async () => {
+    setTransactions(getLocalTransactions());
+    setPendingCount(getOutbox().length);
+    await performSync();
+  }, [performSync]);
 
   const todayBalance = useMemo(() => {
     const today = startOfDay(new Date());
@@ -145,12 +209,12 @@ function App() {
   const handleSaveTransaction = async (data: Partial<Transaction>) => {
     try {
       if (data.id) {
-        await axios.put(`${API_BASE}/transactions/${data.id}`, data);
+        await updateTransactionRepo(data.id, data);
       } else {
-        await axios.post(`${API_BASE}/transactions`, data);
+        await createTransactionRepo(data);
       }
-      fetchTransactions();
       setIsModalOpen(false);
+      await refreshFromLocalAndSync();
     } catch (error) {
       console.error('Failed to save transaction', error);
     }
@@ -165,39 +229,39 @@ function App() {
         if (!excluded.includes(dateStr)) {
           excluded.push(dateStr);
         }
-        await axios.put(`${API_BASE}/transactions/${selectedTransaction.id}`, {
+        await updateTransactionRepo(selectedTransaction.id, {
           ...selectedTransaction,
-          excludedDates: excluded.join(',')
+          excludedDates: excluded.join(','),
         });
-        await axios.post(`${API_BASE}/transactions`, {
+        await createTransactionRepo({
           ...data,
           id: undefined,
           recurrence: 'NONE',
           recurrenceInterval: 1,
           recurrenceEndDate: null,
-          excludedDates: null
+          excludedDates: null,
         });
       } else {
         const originalDateStr = format(new Date(selectedTransaction.date), 'yyyy-MM-dd');
         const selectedDateStr = format(selectedDate, 'yyyy-MM-dd');
 
         if (originalDateStr === selectedDateStr) {
-          await axios.put(`${API_BASE}/transactions/${selectedTransaction.id}`, data);
+          await updateTransactionRepo(selectedTransaction.id, data);
         } else {
           const prevDay = new Date(selectedDate);
           prevDay.setDate(prevDay.getDate() - 1);
-          await axios.put(`${API_BASE}/transactions/${selectedTransaction.id}`, {
+          await updateTransactionRepo(selectedTransaction.id, {
             ...selectedTransaction,
-            recurrenceEndDate: prevDay.toISOString()
+            recurrenceEndDate: prevDay.toISOString(),
           });
-          await axios.post(`${API_BASE}/transactions`, {
+          await createTransactionRepo({
             ...data,
-            id: undefined
+            id: undefined,
           });
         }
       }
-      fetchTransactions();
       setIsModalOpen(false);
+      await refreshFromLocalAndSync();
     } catch (error) {
       console.error('Failed complex save', error);
     }
@@ -205,9 +269,9 @@ function App() {
 
   const handleDeleteTransaction = async (id: number) => {
     try {
-      await axios.delete(`${API_BASE}/transactions/${id}`);
-      fetchTransactions();
+      await deleteTransactionRepo(id);
       setIsModalOpen(false);
+      await refreshFromLocalAndSync();
     } catch (error) {
       console.error('Failed to delete transaction', error);
     }
@@ -222,22 +286,22 @@ function App() {
         if (!excluded.includes(dateStr)) {
           excluded.push(dateStr);
         }
-        await axios.put(`${API_BASE}/transactions/${id}`, {
+        await updateTransactionRepo(id, {
           ...selectedTransaction,
-          excludedDates: excluded.join(',')
+          excludedDates: excluded.join(','),
         });
       } else if (mode === 'future') {
         const prevDay = new Date(selectedDate);
         prevDay.setDate(prevDay.getDate() - 1);
-        await axios.put(`${API_BASE}/transactions/${id}`, {
+        await updateTransactionRepo(id, {
           ...selectedTransaction,
-          recurrenceEndDate: prevDay.toISOString()
+          recurrenceEndDate: prevDay.toISOString(),
         });
       } else {
-        await axios.delete(`${API_BASE}/transactions/${id}`);
+        await deleteTransactionRepo(id);
       }
-      fetchTransactions();
       setIsModalOpen(false);
+      await refreshFromLocalAndSync();
     } catch (error) {
       console.error('Failed complex delete', error);
     }
@@ -246,32 +310,42 @@ function App() {
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post(`${API_BASE}/settings`, settings);
+      saveRemoteSyncConfig(remoteConfig);
+
+      let updatedSettings = { ...settings };
+      const notifOk = await syncDailyNotification(updatedSettings);
+      if (!notifOk && updatedSettings.dailyNotificationEnabled) {
+        alert(t(updatedSettings.language, 'notificationPermissionDenied'));
+        updatedSettings = { ...updatedSettings, dailyNotificationEnabled: false };
+        setSettings(updatedSettings);
+      }
+
+      await saveSettingsRepo(updatedSettings);
       setIsSettingsOpen(false);
+      await performSync();
     } catch (error) {
       console.error('Failed to save settings', error);
     }
   };
 
-  const handleBackup = () => {
-    window.location.href = `${API_BASE}/backup`;
+  const handleBackup = async () => {
+    try {
+      await exportBackupRepo();
+    } catch (error) {
+      console.error('Backup failed', error);
+    }
   };
 
   const handleRestore = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('backup', file);
-
     try {
-      await axios.post(`${API_BASE}/restore`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      await importBackupRepo(file);
+      setTransactions(getLocalTransactions());
+      setSettings(getLocalSettings());
       alert(t(settings.language, 'restoreSuccess'));
-      window.location.reload();
+      await performSync();
     } catch (error) {
       console.error('Restore failed', error);
       alert(t(settings.language, 'restoreError'));
@@ -294,14 +368,53 @@ function App() {
         <div className="bg-m3-surface-container border border-m3-card-border rounded-3xl p-5 sm:p-6 shadow-sm transition-all">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <div className="flex items-center gap-2 mb-1">
+              <div className="flex items-center flex-wrap gap-2 mb-1">
                 <span className="text-xs font-bold uppercase tracking-wider text-m3-on-surface-variant">
                   {t(settings.language, 'currentBalance')}
                 </span>
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span
+                  className={cn(
+                    "w-2 h-2 rounded-full",
+                    syncStatus === 'offline' || syncStatus === 'error'
+                      ? "bg-amber-500"
+                      : "bg-emerald-500 animate-pulse"
+                  )}
+                />
                 <span className="text-xs text-m3-on-surface-variant font-medium hidden sm:inline">
                   • {formattedDate}
                 </span>
+
+                {/* Sync / Offline Status Pill */}
+                <button
+                  type="button"
+                  onClick={() => performSync()}
+                  title={t(settings.language, 'syncNow')}
+                  className={cn(
+                    "inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full border transition-colors",
+                    syncStatus === 'synced' &&
+                      "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+                    syncStatus === 'syncing' &&
+                      "bg-m3-primary/10 text-m3-primary border-m3-primary/20",
+                    syncStatus === 'local-only' &&
+                      "bg-m3-surface-container-high text-m3-on-surface-variant border-m3-card-border",
+                    (syncStatus === 'offline' || syncStatus === 'error') &&
+                      "bg-amber-500/15 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                  )}
+                >
+                  {syncStatus === 'synced' && <Cloud size={12} />}
+                  {syncStatus === 'syncing' && <RefreshCw size={12} className="animate-spin" />}
+                  {syncStatus === 'local-only' && <HardDrive size={12} />}
+                  {(syncStatus === 'offline' || syncStatus === 'error') && <CloudOff size={12} />}
+                  <span>
+                    {syncStatus === 'synced' && t(settings.language, 'syncStatusSynced')}
+                    {syncStatus === 'syncing' && t(settings.language, 'syncStatusSyncing')}
+                    {syncStatus === 'local-only' && t(settings.language, 'syncStatusLocal')}
+                    {(syncStatus === 'offline' || syncStatus === 'error') &&
+                      t(settings.language, 'syncStatusOffline')}
+                    {pendingCount > 0 &&
+                      ` (${t(settings.language, 'pendingChanges').replace('{n}', String(pendingCount))})`}
+                  </span>
+                </button>
               </div>
               <div className="flex items-baseline gap-2.5">
                 <span className="text-3xl sm:text-4xl font-black text-m3-on-surface tracking-tight">
@@ -513,7 +626,7 @@ function App() {
               <span>{t(settings.language, 'restore')}</span>
               <input
                 type="file"
-                accept=".db"
+                accept=".json,.db"
                 className="hidden"
                 onChange={handleRestore}
               />
@@ -539,6 +652,8 @@ function App() {
         onClose={() => setIsSettingsOpen(false)}
         settings={settings}
         setSettings={setSettings}
+        remoteConfig={remoteConfig}
+        setRemoteConfig={setRemoteConfig}
         onSave={handleSaveSettings}
         themeMode={themeMode}
         onThemeModeChange={setThemeMode}
