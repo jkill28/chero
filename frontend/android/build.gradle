@@ -24,6 +24,31 @@ allprojects {
     }
 }
 
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty('android')) {
+            project.android {
+                compileOptions {
+                    sourceCompatibility JavaVersion.VERSION_17
+                    targetCompatibility JavaVersion.VERSION_17
+                }
+            }
+        }
+        def kotlinExt = project.extensions.findByName('kotlin')
+        if (kotlinExt != null) {
+            kotlinExt.jvmToolchain(17)
+        }
+        def javaExt = project.extensions.findByName('java')
+        if (javaExt != null) {
+            javaExt.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+        }
+        project.tasks.withType(JavaCompile).configureEach {
+            sourceCompatibility = JavaVersion.VERSION_17.toString()
+            targetCompatibility = JavaVersion.VERSION_17.toString()
+        }
+    }
+}
+
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
