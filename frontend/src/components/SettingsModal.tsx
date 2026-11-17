@@ -29,8 +29,8 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-m3-surface-container rounded-3xl border border-m3-card-border w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 px-4 modal-safe-area overflow-y-auto">
+      <div className="bg-m3-surface-container rounded-3xl border border-m3-card-border w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto max-h-[85vh] flex flex-col">
         <div className="flex justify-between items-center px-6 py-5 border-b border-m3-card-border shrink-0">
           <h2 className="text-xl font-bold text-m3-on-surface">{t(settings.language, 'settings')}</h2>
           <button onClick={onClose} className="p-2 text-m3-on-surface-variant hover:text-m3-on-surface hover:bg-m3-on-surface/10 rounded-xl transition-colors">

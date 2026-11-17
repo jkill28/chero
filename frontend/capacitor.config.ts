@@ -8,6 +8,10 @@ const config: CapacitorConfig = {
     CapacitorHttp: {
       enabled: true,
     },
+    SystemBars: {
+      insetsHandling: 'disable',
+      hidden: true,
+    },
     LocalNotifications: {
       iconColor: '#10b981',
     },

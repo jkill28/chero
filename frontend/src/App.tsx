@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, format, startOfDay, isSameDay } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { Calendar } from './components/Calendar';
@@ -62,6 +63,10 @@ function App() {
 
   useEffect(() => {
     const root = document.documentElement;
+    if (Capacitor.isNativePlatform() && !root.style.getPropertyValue('--safe-area-top')) {
+      root.style.setProperty('--safe-area-top', '44px');
+      root.style.setProperty('--safe-area-bottom', '16px');
+    }
     const applyTheme = (mode: ThemeMode) => {
       if (mode === 'dark') {
         root.classList.add('dark');
@@ -386,11 +391,11 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-m3-surface text-m3-on-surface p-3 sm:p-6 transition-colors font-sans">
+    <div className="min-h-screen bg-m3-surface text-m3-on-surface px-3 sm:px-6 app-safe-area transition-colors font-sans">
       <div className="max-w-5xl mx-auto space-y-4 sm:space-y-6">
 
-        {/* Centered App Name above all cards */}
-        <header className="text-center pt-2 pb-1">
+        {/* Centered App Name positioned safely below Pixel camera cutout */}
+        <header className="text-center pt-1 pb-1">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-m3-on-surface">
             {t(settings.language, 'title')}
           </h1>

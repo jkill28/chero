@@ -100,8 +100,8 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 p-4">
-      <div className="bg-m3-surface-container rounded-3xl border border-m3-card-border w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center z-50 px-4 modal-safe-area overflow-y-auto">
+      <div className="bg-m3-surface-container rounded-3xl border border-m3-card-border w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200 my-auto max-h-[85vh] overflow-y-auto">
         <div className="flex justify-between items-center px-6 py-5 border-b border-m3-card-border">
           <h2 className="text-xl font-bold text-m3-on-surface">
             {transaction ? t(language, 'editTransaction') : t(language, 'newTransaction')}
