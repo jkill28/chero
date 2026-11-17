@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Chéro</string>
     <string name="title_activity_main">Chéro</string>
-    <string name="package_name">com.chero.app</string>
-    <string name="custom_url_scheme">com.chero.app</string>
+    <string name="package_name">com.weshlameche.chero</string>
+    <string name="custom_url_scheme">com.weshlameche.chero</string>
 </resources>

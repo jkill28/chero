@@ -1,4 +1,4 @@
-package com.chero.app;
+package com.weshlameche.chero;
 
 import android.os.Build;
 import android.os.Bundle;

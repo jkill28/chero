@@ -1,10 +1,24 @@
 # Chéro - Budget in a Calendar
 
-A web application for personal finance management with a calendar view.
+A web and Android application for personal finance management with a calendar view.
 
 <p align="center">
-  <img src="docs/preview.png" alt="Chéro Preview" width="450" />
+  <img src="docs/play-console/presentation-1024x500.png" alt="Chéro - Web & Android Overview" width="900" />
 </p>
+
+## Screenshots
+
+### Web App (16:9)
+
+<p align="center">
+  <img src="docs/play-console/web-app-16x9-1920x1080.png" alt="Chéro Web App Calendar View" width="900" />
+</p>
+
+### Mobile & Android App (9:16)
+
+| Dark Theme Calendar | Light Theme Calendar | Add / Edit Transaction | Settings & Cloud Sync |
+| :---: | :---: | :---: | :---: |
+| <img src="docs/play-console/mobile-1-calendar-dark-1080x1920.png" alt="Calendar Dark Theme" width="210" /> | <img src="docs/play-console/mobile-3-calendar-light-1080x1920.png" alt="Calendar Light Theme" width="210" /> | <img src="docs/play-console/mobile-2-transaction-modal-1080x1920.png" alt="Transaction Modal" width="210" /> | <img src="docs/play-console/mobile-4-settings-sync-1080x1920.png" alt="Settings & Sync" width="210" /> |
 
 ## Features
 
