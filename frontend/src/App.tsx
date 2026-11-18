@@ -64,24 +64,38 @@ function App() {
   useEffect(() => {
     const root = document.documentElement;
     if (Capacitor.isNativePlatform() && !root.style.getPropertyValue('--safe-area-top')) {
-      root.style.setProperty('--safe-area-top', '44px');
-      root.style.setProperty('--safe-area-bottom', '16px');
+      root.style.setProperty('--safe-area-top', '36px');
+      root.style.setProperty('--safe-area-bottom', '20px');
     }
+    const syncNativeSystemBarsTheme = (isLightAppearance: boolean) => {
+      const win = window as Window & {
+        CheroNative?: { setSystemBarsLightAppearance?: (isLight: boolean) => void };
+      };
+      try {
+        win.CheroNative?.setSystemBarsLightAppearance?.(isLightAppearance);
+      } catch {
+        // Ignore if bridge not ready
+      }
+    };
     const applyTheme = (mode: ThemeMode) => {
       if (mode === 'dark') {
         root.classList.add('dark');
         root.classList.remove('light');
+        syncNativeSystemBarsTheme(false);
       } else if (mode === 'white') {
         root.classList.add('light');
         root.classList.remove('dark');
+        syncNativeSystemBarsTheme(true);
       } else {
         const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
         if (prefersDark) {
           root.classList.add('dark');
           root.classList.remove('light');
+          syncNativeSystemBarsTheme(false);
         } else {
           root.classList.add('light');
           root.classList.remove('dark');
+          syncNativeSystemBarsTheme(true);
         }
       }
     };

@@ -10,7 +10,7 @@ const config: CapacitorConfig = {
     },
     SystemBars: {
       insetsHandling: 'disable',
-      hidden: true,
+      hidden: false,
     },
     LocalNotifications: {
       iconColor: '#10b981',

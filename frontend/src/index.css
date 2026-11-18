@@ -79,15 +79,15 @@ body {
   width: 100%;
 }
 
-/* Android Immersive / Display Cutout Safe Area Clearance */
+/* Android Material 3 Expressive Edge-to-Edge Safe Area Clearance */
 .app-safe-area {
-  padding-top: calc(max(var(--safe-area-top, 0px), env(safe-area-inset-top, 0px)) + 0.75rem);
+  padding-top: calc(max(var(--safe-area-top, 0px), env(safe-area-inset-top, 0px)) + 0.5rem);
   padding-bottom: calc(max(var(--safe-area-bottom, 0px), env(safe-area-inset-bottom, 0px)) + 0.75rem);
 }
 
 .modal-safe-area {
-  padding-top: calc(max(var(--safe-area-top, 0px), env(safe-area-inset-top, 0px)) + 1rem);
-  padding-bottom: calc(max(var(--safe-area-bottom, 0px), env(safe-area-inset-bottom, 0px)) + 1rem);
+  padding-top: calc(max(var(--safe-area-top, 0px), env(safe-area-inset-top, 0px)) + 0.75rem);
+  padding-bottom: calc(max(var(--safe-area-bottom, 0px), env(safe-area-inset-bottom, 0px)) + 0.75rem);
 }
 
 /* System dark preference when not explicitly forced to .light */
